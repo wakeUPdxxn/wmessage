@@ -42,9 +42,15 @@
     </font>
    </property>
    <property name="styleSheet">
-    <string notr="true">color:rgb(252, 238, 255);
-border:2px;
-text-align:left;
+    <string notr="true">QPushButton {
+	color:rgb(252, 238, 255);
+	border:2px;
+	text-align:left;
+}
+QPushButton:hover{
+	border-bottom: 1px solid white;
+	font: black &quot;Montserrat&quot;;
+}
 
 </string>
    </property>
@@ -230,10 +236,18 @@ color:rgb(252, 238, 255);</string>
     <enum>Qt::StrongFocus</enum>
    </property>
    <property name="styleSheet">
-    <string notr="true">background-color: #22222e;
+    <string notr="true">QLineEdit {
+background-color: #22222e;
 color:rgb(252, 238, 255);
 border:2px solid rgb(99, 99, 99);
 border-radius: 6px;
+}
+QLineEdit:focus{
+background-color: #22222e;
+color:rgb(252, 238, 255);
+border:3px solid rgb(190, 190, 190);
+border-radius: 6px;
+}
 </string>
    </property>
   </widget>
@@ -253,10 +267,18 @@ border-radius: 6px;
     </font>
    </property>
    <property name="styleSheet">
-    <string notr="true">background-color: #22222e;
+    <string notr="true">QLineEdit {
+background-color: #22222e;
 color:rgb(252, 238, 255);
 border:2px solid rgb(99, 99, 99);
 border-radius: 6px;
+}
+QLineEdit:focus{
+background-color: #22222e;
+color:rgb(252, 238, 255);
+border:3px solid rgb(190, 190, 190);
+border-radius: 6px;
+}
 
 </string>
    </property>
@@ -294,7 +316,7 @@ border-radius: 6px;
    <property name="geometry">
     <rect>
      <x>390</x>
-     <y>263</y>
+     <y>262</y>
      <width>51</width>
      <height>21</height>
     </rect>

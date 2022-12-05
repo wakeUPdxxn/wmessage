@@ -8,7 +8,7 @@ Client::Client(QWidget *parent)
       ui(new Ui::Client)
 {
     ui->setupUi(this);
-    setAttribute(Qt::WA_DeleteOnClose);
+    //setAttribute(Qt::WA_DeleteOnClose);
 
     socket= new QTcpSocket(this);
     if(socket->state()==QTcpSocket::UnconnectedState){

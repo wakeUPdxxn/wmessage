@@ -1,7 +1,6 @@
 #ifndef LOGIN_H
 #define LOGIN_H
 
-#include <QTcpSocket>
 #include "registration.h"
 
 namespace Ui {
@@ -18,30 +17,15 @@ public:
     void SendLoginPassword();
 
 private slots:    
-    void on_registration_clicked();
-    void on_login_clicked();
+    void on_registration_clicked();;
 
     void on_login_pressed();
 
     void on_login_released();
 
-    void on_email_editingFinished();
-
-    void on_email_selectionChanged();
-
-    void on_pushButton_clicked();
-
-    void on_show_clicked();
-
-    void on_show_released();
-
     void on_show_pressed();
 
-    void on_email_textEdited(const QString &arg1);
-
-    void on_password_textEdited(const QString &arg1);
-
-    void on_password_editingFinished();
+    void on_password_returnPressed();
 
 private:
     Ui::Login *ui;

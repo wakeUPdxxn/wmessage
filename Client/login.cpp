@@ -32,13 +32,21 @@ void Login::SendLoginPassword()
 
 void Login::on_registration_clicked()
 {
-    reg=new Registration;
+    reg=new Registration(nullptr,socket);
     reg->setWindowTitle("Регистрация");
     reg->show();
 }
 
-void Login::on_login_clicked()
+void Login::on_login_pressed()
 {
+    QGraphicsDropShadowEffect *shadow = new QGraphicsDropShadowEffect(this);
+    ui->login->setGraphicsEffect(shadow);
+}
+
+
+void Login::on_login_released()
+{
+    ui->login->setGraphicsEffect(nullptr);
     QString payload="authentication";
     QString email=ui->email->text();
     QString password=ui->password->text();
@@ -56,64 +64,6 @@ void Login::on_login_clicked()
         response.password=password;
         SendLoginPassword();
     }
-}
-
-void Login::on_login_pressed()
-{
-    QGraphicsDropShadowEffect *shadow = new QGraphicsDropShadowEffect(this);
-    ui->login->setGraphicsEffect(shadow);
-}
-
-
-void Login::on_login_released()
-{
-    ui->login->setGraphicsEffect(nullptr);
-}
-
-
-void Login::on_email_textEdited(const QString &arg1)
-{
-    ui->email->setStyleSheet("background-color: #22222e;"
-            "color:rgb(252, 238, 255);"
-            "border:3px solid rgb(190, 190, 190);"
-            "border-radius: 6px;"
-             );
-}
-
-void Login::on_email_editingFinished()
-{
-    ui->email->setStyleSheet("background-color: #22222e;"
-            "color:rgb(252, 238, 255);"
-            "border:2px solid rgb(99, 99, 99);"
-            "border-radius: 6px;"
-            );
-}
-
-void Login::on_password_textEdited(const QString &arg1)
-{
-    ui->password->setStyleSheet("background-color: #22222e;"
-            "color:rgb(252, 238, 255);"
-            "border:3px solid rgb(190, 190, 190);"
-            "border-radius: 6px;"
-             );
-}
-
-
-void Login::on_password_editingFinished()
-{
-    ui->password->setStyleSheet("background-color: #22222e;"
-            "color:rgb(252, 238, 255);"
-            "border:2px solid rgb(99, 99, 99);"
-            "border-radius: 6px;"
-            );
-}
-
-
-
-
-void Login::on_show_released()
-{
-    ui->show->setGraphicsEffect(nullptr);
 }
 
 
@@ -136,4 +86,9 @@ void Login::on_show_pressed()
     i++;
 }
 
+
+void Login::on_password_returnPressed()
+{
+    on_login_released();
+}
 

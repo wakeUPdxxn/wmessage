@@ -55,6 +55,14 @@ void Server::readyRead(){
                auth.signUserIn(email,password);
                sendToClient(auth.result,socket->socketDescriptor());
             }
+            if(response.payload=="registration"){
+                in >> response.email >> response.password;
+                QString email=response.email;
+                QString password=response.password;
+                qDebug() << "Registration required with data" << "email:" << email << "password:" << password;
+                auth.signUserUp(email,password);
+                sendToClient(auth.result,socket->socketDescriptor());
+            }
             nextBlockSize=0;
             break;
         }

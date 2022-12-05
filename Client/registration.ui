@@ -22,32 +22,72 @@
   <property name="styleSheet">
    <string notr="true">background-color: #22222e</string>
   </property>
-  <widget class="QPushButton" name="pushButton">
+  <widget class="QLineEdit" name="password">
    <property name="geometry">
     <rect>
-     <x>170</x>
-     <y>360</y>
-     <width>171</width>
-     <height>31</height>
+     <x>30</x>
+     <y>250</y>
+     <width>430</width>
+     <height>45</height>
     </rect>
    </property>
    <property name="font">
     <font>
-     <family>Montserrat</family>
-     <pointsize>11</pointsize>
+     <family>Candara</family>
+     <pointsize>14</pointsize>
+     <bold>false</bold>
+    </font>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QLineEdit {
+background-color: #22222e;
+color:rgb(252, 238, 255);
+border:2px solid rgb(99, 99, 99);
+border-radius: 6px;
+}
+QLineEdit:focus{
+background-color: #22222e;
+color:rgb(252, 238, 255);
+border:3px solid rgb(190, 190, 190);
+border-radius: 6px;
+}
+</string>
+   </property>
+   <property name="echoMode">
+    <enum>QLineEdit::Password</enum>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="registrate">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>340</y>
+     <width>430</width>
+     <height>45</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Century Gothic</family>
+     <pointsize>14</pointsize>
+     <bold>true</bold>
     </font>
    </property>
    <property name="styleSheet">
-    <string notr="true">background-color: rgb(53, 53, 53);
-color: #f66867;
-border: 2px solid #f66867;
-border-radius: 30px;
-border-color: #f66867;
+    <string notr="true">color: rgb(252, 238, 255);
+background-color: rgb(126, 132, 255);               
+border: 2px solid rgb(126, 132, 255);
+border-radius: 6px;
+
+
 
 </string>
    </property>
    <property name="text">
-    <string>Зарегистрироваться</string>
+    <string>Registrate me</string>
    </property>
    <property name="checkable">
     <bool>false</bool>
@@ -62,116 +102,131 @@ border-color: #f66867;
     <bool>false</bool>
    </property>
   </widget>
-  <widget class="QWidget" name="layoutWidget">
+  <widget class="QLineEdit" name="email">
    <property name="geometry">
     <rect>
-     <x>50</x>
-     <y>50</y>
-     <width>241</width>
-     <height>82</height>
+     <x>30</x>
+     <y>150</y>
+     <width>430</width>
+     <height>45</height>
     </rect>
    </property>
-   <layout class="QHBoxLayout" name="horizontalLayout">
-    <item>
-     <layout class="QVBoxLayout" name="verticalLayout_14">
-      <item>
-       <widget class="QLabel" name="label_13">
-        <property name="font">
-         <font>
-          <family>Montserrat</family>
-          <pointsize>11</pointsize>
-         </font>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">background-color: #22222e;
-color: #f66867;</string>
-        </property>
-        <property name="text">
-         <string>Логин</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_14">
-        <property name="font">
-         <font>
-          <family>Montserrat</family>
-          <pointsize>11</pointsize>
-         </font>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">background-color: #22222e;
-color: #f66867;</string>
-        </property>
-        <property name="text">
-         <string>Пароль</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_15">
-        <property name="font">
-         <font>
-          <family>Montserrat</family>
-          <pointsize>11</pointsize>
-         </font>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">background-color: #22222e;
-color: #f66867;</string>
-        </property>
-        <property name="text">
-         <string>Повтор </string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
-    <item>
-     <layout class="QVBoxLayout" name="verticalLayout_13">
-      <item>
-       <widget class="QLineEdit" name="lineEdit_13">
-        <property name="styleSheet">
-         <string notr="true">background-color: #22222e;
-color:rgb(194, 184, 168);
-border:2px solid rgb(189, 189, 189);
+   <property name="font">
+    <font>
+     <family>Candara</family>
+     <pointsize>14</pointsize>
+     <bold>false</bold>
+    </font>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QLineEdit {
+background-color: #22222e;
+color:rgb(252, 238, 255);
+border:2px solid rgb(99, 99, 99);
+border-radius: 6px;
+}
+QLineEdit:focus{
+background-color: #22222e;
+color:rgb(252, 238, 255);
+border:3px solid rgb(190, 190, 190);
+border-radius: 6px;
+}
 </string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLineEdit" name="lineEdit_14">
-        <property name="styleSheet">
-         <string notr="true">background-color: #22222e;
-color:rgb(194, 184, 168);
-border:2px solid rgb(189, 189, 189);</string>
-        </property>
-        <property name="echoMode">
-         <enum>QLineEdit::Normal</enum>
-        </property>
-        <property name="clearButtonEnabled">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLineEdit" name="lineEdit_15">
-        <property name="styleSheet">
-         <string notr="true">background-color: #22222e;
-color:rgb(194, 184, 168);
-border:2px solid rgb(189, 189, 189);</string>
-        </property>
-        <property name="echoMode">
-         <enum>QLineEdit::Normal</enum>
-        </property>
-        <property name="clearButtonEnabled">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
-   </layout>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>120</y>
+     <width>61</width>
+     <height>19</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Montserrat</family>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color: #22222e;
+color:rgb(252, 238, 255);</string>
+   </property>
+   <property name="text">
+    <string>E-mail</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>220</y>
+     <width>91</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Montserrat</family>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color: #22222e;
+color:rgb(252, 238, 255);</string>
+   </property>
+   <property name="text">
+    <string>Password</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_5">
+   <property name="geometry">
+    <rect>
+     <x>140</x>
+     <y>40</y>
+     <width>311</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Century Gothic</family>
+     <pointsize>20</pointsize>
+     <italic>false</italic>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">color:rgb(252, 238, 255);
+font: bold</string>
+   </property>
+   <property name="text">
+    <string>Glad to see you</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="show">
+   <property name="geometry">
+    <rect>
+     <x>390</x>
+     <y>262</y>
+     <width>51</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color: #22222e;
+color:rgb(252, 238, 255);
+border:2px solid rgb(99, 99, 99);
+border-radius: 6px;
+</string>
+   </property>
+   <property name="text">
+    <string>Show</string>
+   </property>
   </widget>
  </widget>
  <resources/>
