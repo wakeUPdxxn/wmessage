@@ -49,7 +49,7 @@ void Authentication::networkReplyReadyRead()
     QByteArray response = m_networkReplay->readAll();
     m_networkReplay ->deleteLater();
     parseResponse(response);
-    //qDebug() << response;
+    qDebug() << response;
 }
 
 void Authentication::sendPost(const QString &url, const QJsonDocument &payload)
@@ -71,7 +71,6 @@ void Authentication::parseResponse(const QByteArray &response)
     else if(jsonDocument.object().contains("kind")){
         QString idToken = jsonDocument.object().value("idToken").toString();
         m_idToken=idToken;
-        qDebug() << idToken;
         result="success";
     }
 }

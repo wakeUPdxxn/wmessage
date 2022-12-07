@@ -92,3 +92,9 @@ void Login::on_password_returnPressed()
     on_login_released();
 }
 
+
+void Login::on_email_returnPressed()
+{
+    on_login_released();
+}
+

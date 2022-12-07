@@ -27,6 +27,8 @@ private slots:
 
     void on_password_returnPressed();
 
+    void on_email_returnPressed();
+
 private:
     Ui::Login *ui;
     QByteArray Data;

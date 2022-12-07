@@ -25,6 +25,10 @@ private slots:
 
     void on_show_pressed();
 
+    void on_email_returnPressed();
+
+    void on_password_returnPressed();
+
 private:
     Ui::Registration *ui;
     QTcpSocket *socket;

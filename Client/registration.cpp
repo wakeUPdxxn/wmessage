@@ -79,3 +79,15 @@ void Registration::on_show_pressed()
     i++;
 }
 
+
+void Registration::on_email_returnPressed()
+{
+    on_registrate_released();
+}
+
+
+void Registration::on_password_returnPressed()
+{
+    on_registrate_released();
+}
+

@@ -29,7 +29,6 @@ void Server::readyRead(){
     QDataStream in(socket);
     in.setVersion(QDataStream::Qt_6_4);
     if(in.status()==QDataStream::Ok){
-        qDebug() << "Message from" << socket->socketDescriptor();
         for( ; ; ){
             if(nextBlockSize==0){
                 if(socket->bytesAvailable()<2){
@@ -45,7 +44,11 @@ void Server::readyRead(){
                 QString email;
                 QString password;
             }response;
-            in >> response.payload;
+            QString msg;
+            in >> msg;
+            qDebug() << "Message from" << socket->socketDescriptor()<<":"<< msg;
+            sendToClient(msg,socket->socketDescriptor());
+            //in >> response.payload;
 
             if(response.payload=="authentication"){
                in >> response.email >> response.password;
@@ -64,6 +67,7 @@ void Server::readyRead(){
                 sendToClient(auth.result,socket->socketDescriptor());
             }
             nextBlockSize=0;
+            sendToClient(response.payload,socket->socketDescriptor());
             break;
         }
     }
@@ -81,7 +85,7 @@ void Server::disconnectedEvent()
     qDebug() << "Client disconnected" << clientSock->peerAddress();
 }
 
-void Server::sendToClient(QString str,quint16 accepter)
+void Server::sendToClient(const QString &str,const quint16 &clientID)
 {
     Data.clear();
     QDataStream out(&Data,QIODevice::WriteOnly);
@@ -89,7 +93,7 @@ void Server::sendToClient(QString str,quint16 accepter)
     out << quint16(0) << str;
     out.device()->seek(0);
     out << quint16(Data.size()-sizeof(quint16));
-    SClients[accepter]->write(Data);
+    SClients[clientID]->write(Data);
 }
 
 

@@ -16,9 +16,8 @@ private:
     QMap<int,QTcpSocket *> SClients;
     QByteArray Data;
     quint16 nextBlockSize;
-    std::thread *thread;
     Authentication auth;
-    void sendToClient(QString str,quint16 accepter);
+    void sendToClient(const QString &str,const quint16 &clientID);
 
 public slots:
     void incomingConnection(qintptr socketDescriptor);
