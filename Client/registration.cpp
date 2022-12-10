@@ -3,7 +3,7 @@
 #include <QGraphicsDropShadowEffect>
 #include <QMessageBox>
 
-Registration::Registration(QWidget *parent,QTcpSocket *sock) :
+Registration::Registration(QWidget *parent,QWebSocket *sock) :
     QWidget(parent),
     ui(new Ui::Registration),
     socket(sock)
@@ -25,9 +25,6 @@ void Registration::SendLoginPassword()
     QDataStream out(&Data,QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_6_3);
     out << quint16(0) << response.payload << response.email << response.password;
-    out.device()->seek(0);
-    out << quint16(Data.size()-sizeof(quint16));
-    socket->write(Data);
 }
 
 void Registration::on_registrate_pressed()

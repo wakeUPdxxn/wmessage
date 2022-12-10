@@ -1,7 +1,6 @@
-#ifndef REGISTRATION_H
-#define REGISTRATION_H
+#pragma once
 
-#include <QTcpSocket>
+#include <QWebSocket>
 #include <QObject>
 #include <QWidget>
 
@@ -14,7 +13,7 @@ class Registration : public QWidget
     Q_OBJECT
 
 public:
-    explicit Registration(QWidget *parent,QTcpSocket *sock);
+    explicit Registration(QWidget *parent,QWebSocket *sock);
     ~Registration();
     void SendLoginPassword();
 
@@ -31,7 +30,7 @@ private slots:
 
 private:
     Ui::Registration *ui;
-    QTcpSocket *socket;
+    QWebSocket *socket;
     QByteArray Data;
     struct RESPONSE{
       QString payload;
@@ -39,5 +38,3 @@ private:
       QString password;
     }response;
 };
-
-#endif // REGISTRATION_H

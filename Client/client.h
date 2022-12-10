@@ -1,9 +1,9 @@
-#ifndef CLIENT_H
-#define CLIENT_H
+#pragma once
 
 #include "login.h"
 #include <QMainWindow>
 #include <QMessageBox>
+#include <QWebSocket>
 #include <QDialog>
 #include <QLabel>
 
@@ -24,17 +24,16 @@ private slots:
     void on_lineEdit_returnPressed();
 
 public slots:
-    void ReadyRead();
+    void readyRead(const QString &message);
 
 private:
     Ui::Client *ui;
     QByteArray Data;
-    QTcpSocket *socket;
-    quint16 nextBlockSize;
+    QWebSocket *socket;
     Login *log;
     bool authorized=0;
     void login();
     void SendToServer(QString str);
     
 };
-#endif // CLIENT_H
+

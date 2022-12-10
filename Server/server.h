@@ -1,28 +1,25 @@
-#ifndef SERVER_H
-#define SERVER_H
-#include <QTcpServer>
-#include <QTcpSocket>
+#pragma once
+
+#include <QObject>
+#include <QWebSocket>
+#include <QWebSocketServer>
 #include <authentication.h>
-#include <thread>
 
-class Server:public QTcpServer
+class Server:public QWebSocketServer
 {
-    Q_OBJECT
 public:
-    Server();
-    QTcpSocket *socket;
-
+    explicit Server(QObject *parent = nullptr);
 private:
-    QMap<int,QTcpSocket *> SClients;
+    QWebSocketServer *serv;
+    QWebSocket *socket;
+    QHash<const QHostAddress,QWebSocket *> SClients;
     QByteArray Data;
-    quint16 nextBlockSize;
     Authentication auth;
-    void sendToClient(const QString &str,const quint16 &clientID);
+    void sendToClient(const QString &str,const QHostAddress &clientAddress);
 
 public slots:
-    void incomingConnection(qintptr socketDescriptor);
-    void readyRead();
+    void newClient();
+    void readyRead(const QString &str);
     void disconnectedEvent();
 };
 
-#endif // SERVER_H

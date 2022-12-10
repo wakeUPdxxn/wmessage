@@ -1,91 +1,52 @@
 #include "server.h"
+#include <QDebug>
+#include <QFile>
 
-Server::Server()
+Server::Server(QObject *parent)
+    : QWebSocketServer{"MyServer",QWebSocketServer::NonSecureMode,parent}
 {
-    auth.setApiKey("AIzaSyArYs6ByVk8DB9QU7eQGenWk_QOZBMLPCw");
-    if(this->listen(QHostAddress::Any,3232)){
+    QFile data("C:/Users/DXXN/Documents/Client-Server-messanger/Server/apiKey.txt");
+    if(data.open(QIODevice::ReadOnly | QIODevice::Text)){
+        QTextStream in(&data);
+        auth.setApiKey(in.readLine());
+    }
+    if(this->listen(QHostAddress::Any,2323)){
         qDebug() << "start";
     }
     else {
         qDebug() << "error";
     }
-    nextBlockSize=0;
+    socket=NULL;
+    connect(this,&Server::newConnection,this, &Server::newClient);
 }
 
-void Server::incomingConnection(qintptr socketDescriptor){
-    socket=new QTcpSocket;
-    addPendingConnection(socket);
-    socket->setSocketDescriptor(socketDescriptor);
-    connect(socket,&QTcpSocket::readyRead,this,&Server::readyRead);
-    connect(socket,SIGNAL(disconnected()),this,SLOT(disconnectedEvent()));
-    connect(socket,&QTcpSocket::disconnected,socket,&QTcpSocket::deleteLater); //Очистка сокета при получении сигнала об отключении клиента
+void Server::newClient(){
 
-    SClients[socket->socketDescriptor()]=socket;
-    qDebug() << "Client connected" << socket->socketDescriptor();
+    socket = new QWebSocket;
+    socket = this->nextPendingConnection();
+    connect(socket,&QWebSocket::textMessageReceived,this,&Server::readyRead);
+    connect(socket,&QWebSocket::disconnected,this,&Server::disconnectedEvent);
+    connect(socket,&QWebSocket::disconnected,socket,&QWebSocket::deleteLater); //Очистка сокета при получении сигнала об отключении клиента
+
+    SClients[socket->peerAddress()]=socket;
+    qDebug() << "Client connected" << socket->peerAddress();
 }
 
-void Server::readyRead(){
-    socket=(QTcpSocket*)sender();
-    QDataStream in(socket);
-    in.setVersion(QDataStream::Qt_6_4);
-    if(in.status()==QDataStream::Ok){
-        for( ; ; ){
-            if(nextBlockSize==0){
-                if(socket->bytesAvailable()<2){
-                    break;
-                }
-                in >> nextBlockSize;
-            }
-            if(socket->bytesAvailable()<nextBlockSize){
-                break;
-            }
-            struct RESPONSE{
-                QString payload;
-                QString email;
-                QString password;
-            }response;
-            QString msg;
-            in >> msg;
-            qDebug() << "Message from" << socket->socketDescriptor()<<":"<< msg;
-            sendToClient(msg,socket->socketDescriptor());
-            //in >> response.payload;
-
-            if(response.payload=="authentication"){
-               in >> response.email >> response.password;
-               QString email=response.email;
-               QString password=response.password;
-               qDebug() << "Authentication required with data" << "email:" << email << "password:" << password;
-               auth.signUserIn(email,password);
-               sendToClient(auth.result,socket->socketDescriptor());
-            }
-            if(response.payload=="registration"){
-                in >> response.email >> response.password;
-                QString email=response.email;
-                QString password=response.password;
-                qDebug() << "Registration required with data" << "email:" << email << "password:" << password;
-                auth.signUserUp(email,password);
-                sendToClient(auth.result,socket->socketDescriptor());
-            }
-            nextBlockSize=0;
-            sendToClient(response.payload,socket->socketDescriptor());
-            break;
-        }
-    }
-    else {
-        qDebug() << "DataStream error";
-    }
+void Server::readyRead(const QString &message){
+    socket=(QWebSocket*)sender();
+    qDebug() << "Message from" << socket->peerAddress() << message;
 }
 
 void Server::disconnectedEvent()
 {
-    QTcpSocket * clientSock = qobject_cast<QTcpSocket *>(sender());
+    QWebSocket *clientSock= qobject_cast<QWebSocket *>(sender());
     if (NULL == clientSock) {
         return;
     }
     qDebug() << "Client disconnected" << clientSock->peerAddress();
 }
 
-void Server::sendToClient(const QString &str,const quint16 &clientID)
+void Server::sendToClient(const QString &str,const QHostAddress &clientAddress)
 {
     Data.clear();
     QDataStream out(&Data,QIODevice::WriteOnly);
@@ -93,7 +54,7 @@ void Server::sendToClient(const QString &str,const quint16 &clientID)
     out << quint16(0) << str;
     out.device()->seek(0);
     out << quint16(Data.size()-sizeof(quint16));
-    SClients[clientID]->write(Data);
+    SClients[clientAddress]->sendTextMessage(str);
 }
 
 

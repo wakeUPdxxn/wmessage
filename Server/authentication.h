@@ -1,5 +1,4 @@
-#ifndef AUTHENTICATION_H
-#define AUTHENTICATION_H
+#pragma once
 
 #include <QObject>
 #include <QNetworkAccessManager>
@@ -33,4 +32,3 @@ private:
 
 };
 
-#endif // AUTHENTICATION_H

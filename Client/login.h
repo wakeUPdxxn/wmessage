@@ -1,7 +1,7 @@
-#ifndef LOGIN_H
-#define LOGIN_H
+#pragma once
 
 #include "registration.h"
+#include <QWebSocket>
 
 namespace Ui {
 class Login;
@@ -12,7 +12,7 @@ class Login : public QWidget
     Q_OBJECT
 
 public:
-    explicit Login(QWidget *parent = nullptr,QTcpSocket *sock=nullptr);
+    explicit Login(QWidget *parent = nullptr,QWebSocket *sock=nullptr);
     ~Login();
     void SendLoginPassword();
 
@@ -32,7 +32,7 @@ private slots:
 private:
     Ui::Login *ui;
     QByteArray Data;
-    QTcpSocket *socket;
+    QWebSocket *socket;
     Registration *reg;
     struct RESPONSE{
       QString payload;
@@ -41,4 +41,4 @@ private:
     }response;
 };
 
-#endif // LOGIN_H
+

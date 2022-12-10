@@ -10,20 +10,17 @@ Client::Client(QWidget *parent)
     ui->setupUi(this);
     //setAttribute(Qt::WA_DeleteOnClose);
 
-    socket= new QTcpSocket(this);
-    if(socket->state()==QTcpSocket::UnconnectedState){
-        socket->connectToHost("127.0.0.1",3232);
+    socket=new QWebSocket;
+    socket->open(QUrl("ws://localhost:2323"));
+    if(socket->state()!=QAbstractSocket::ConnectedState){
+       //QMessageBox::critical(this,"Error","Connection to server faild");
+       //exit(1);
     }
-    if(socket->state()==QTcpSocket::UnconnectedState){
-        QMessageBox::critical(this,"Error","Connection to server faild");
-        exit(1);
-    }
-    connect(socket,&QTcpSocket::readyRead,this,&Client::ReadyRead);
-    connect(socket,&QTcpSocket::disconnected,socket,&QTcpSocket::deleteLater);
+    connect(socket,SIGNAL(textMessageReceived(QString)),this,SLOT(readyRead(QString)));
+    connect(socket,&QWebSocket::disconnected,socket,&QWebSocket::deleteLater);
     if(authorized==false){
         login();
     }
-    nextBlockSize=0;
 }
 
 Client::~Client()
@@ -69,41 +66,14 @@ void Client::on_action_triggered()
    }
 }
 
-void Client::ReadyRead()
+void Client::readyRead(const QString &message)
 {
-    QDataStream in(socket);
-    in.setVersion(QDataStream::Qt_6_4);
-    if(in.status()==QDataStream::Ok){
-        for( ; ; ){
-            if(nextBlockSize==0){
-                if(socket->bytesAvailable()<2){
-                    break;
-                }
-                in >> nextBlockSize;
-            }
-            if(socket->bytesAvailable()<nextBlockSize){
-                break;
-            }
-            QString str;
-            in >> str;
-            ui->textBrowser->append(str);
-            nextBlockSize=0;
-        }
-    }
-    else{
-         QMessageBox::critical(this,"","Not Ok");
-    }
+    ui->textBrowser->append(message);
 }
 
 void Client::SendToServer(QString str)
 {
-    Data.clear();
-    QDataStream out(&Data,QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_6_4);
-    out << quint16(0) << str;
-    out.device()->seek(0);
-    out << quint16(Data.size()-sizeof(quint16));
-    socket->write(Data);
+    socket->sendTextMessage(str);
 }
 
 void Client::on_lineEdit_returnPressed()
