@@ -3,23 +3,22 @@
 #include <QObject>
 #include <QWebSocket>
 #include <QWebSocketServer>
-#include <authentication.h>
 
 class Server:public QWebSocketServer
 {
 public:
     explicit Server(QObject *parent = nullptr);
 private:
-    QWebSocketServer *serv;
     QWebSocket *socket;
+    QString apiKey; // УДАЛИТЬ И СДЕЛАТЬ STATIC В КЛАССЕ АВТОРИЗАЦИИ
     QHash<const QHostAddress,QWebSocket *> SClients;
-    QByteArray Data;
-    Authentication auth;
-    void sendToClient(const QString &str,const QHostAddress &clientAddress);
+    void sendMessageToClient(const QString &message,const QHostAddress &clientAddress);
 
 public slots:
     void newClient();
-    void readyRead(const QString &str);
+    void textMessageReceived(const QString &message);
+    void binaryMessageRecived(const QByteArray &data);
     void disconnectedEvent();
+    void sendBinaryToClient(const QString &message,const QHostAddress &clientAddress);
 };
 

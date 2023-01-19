@@ -1,4 +1,5 @@
 #include "client.h"
+#include "login.h"
 #include "qdialogbuttonbox.h"
 #include "qformlayout.h"
 #include "ui_client.h"
@@ -8,18 +9,22 @@ Client::Client(QWidget *parent)
       ui(new Ui::Client)
 {
     ui->setupUi(this);
-    //setAttribute(Qt::WA_DeleteOnClose);
-
+    setAttribute(Qt::WA_DeleteOnClose);
     socket=new QWebSocket;
     socket->open(QUrl("ws://localhost:2323"));
-    if(socket->state()!=QAbstractSocket::ConnectedState){
-       //QMessageBox::critical(this,"Error","Connection to server faild");
-       //exit(1);
+    if(socket->state()!=QAbstractSocket::ConnectingState){
+       QMessageBox::critical(this,"Error","Connection to server faild");
+       exit(1);
     }
-    connect(socket,SIGNAL(textMessageReceived(QString)),this,SLOT(readyRead(QString)));
+    connect(socket,SIGNAL(textMessageReceived(QString)),this,SLOT(messageReceived(QString)));
+    connect(socket,SIGNAL(binaryMessageReceived(QByteArray)),this,SLOT(binaryMessageReceived(QByteArray)));
     connect(socket,&QWebSocket::disconnected,socket,&QWebSocket::deleteLater);
-    if(authorized==false){
-        login();
+
+    if(!isAuthorized()){
+        showSignInForm();
+    }
+    else{
+        this->show();
     }
 }
 
@@ -28,13 +33,58 @@ Client::~Client()
     delete ui;
 }
 
-void Client::login() {
-   log=new Login(nullptr,socket);
-   log->setWindowFlag(Qt::WindowStaysOnTopHint);
-   log->setWindowTitle("Авторизация");
-   log->show();
+bool Client::isAuthorized()
+{
+    QFile userData("C:/Qt/projects/Client-Server-messanger/Client/userData.json");
+    userData.open(QIODevice::ReadOnly);
+    QString data;
+    data=userData.readAll();
+    userData.close();
+    QJsonDocument doc=QJsonDocument::fromJson(data.toUtf8());
+    QJsonObject obj=doc.object();
+    if(obj["authorized"].toBool()==false){
+       return false;
+    }
+    else{
+       return true;
+    }
 }
 
+void Client::swithAuthorizedState(){
+    QFile userData("C:/Qt/projects/Client-Server-messanger/Client/userData.json");
+    userData.open(QIODevice::ReadOnly);
+    QString data;
+    data=userData.readAll();
+    userData.close();
+    QJsonDocument doc=QJsonDocument::fromJson(data.toUtf8());
+    QJsonObject obj=doc.object();
+    if(obj["authorized"].toBool()==false){
+        obj["authorized"]=true;
+    }
+    else{
+        obj["authorized"]=false;
+    }
+    userData.open(QIODevice::WriteOnly);
+    userData.write(QJsonDocument(obj).toJson());
+}
+
+
+void Client::showSignInForm() {
+   Login *log=new Login(nullptr,socket);
+   log->setWindowTitle("Authentication");
+   log->setWindowFlag(Qt::WindowStaysOnTopHint);
+   log->show();
+   connect(log,&Login::signedIn,this,&Client::show);
+   connect(log,&Login::signedIn,this,&Client::swithAuthorizedState);
+   connect(log,&Login::signUpRequired,this,&Client::showSignUpForm);
+}
+
+void Client::showSignUpForm() {
+    Registration *reg = new Registration(nullptr,socket);
+    reg->setWindowTitle("Registration");
+    reg->setWindowFlag(Qt::WindowStaysOnTopHint);
+    reg->show();
+}
 
 void Client::on_action_triggered()
 {
@@ -62,23 +112,32 @@ void Client::on_action_triggered()
        QMessageBox msg;
        msg.setStyleSheet("background-color: #22222e");
        msg.information(this,"Messanger","До встречи,пользователь");
+       swithAuthorizedState();
        QMainWindow::close();
    }
 }
 
-void Client::readyRead(const QString &message)
+void Client::messageReceived(const QString &message)
 {
     ui->textBrowser->append(message);
 }
 
-void Client::SendToServer(QString str)
+void Client::binaryMessageReceived(const QByteArray &msg)
 {
-    socket->sendTextMessage(str);
+    QDataStream data(msg);
+    QString message;
+    data >> message;
+    qDebug() << message;
+}
+
+void Client::sendMessage(const QString &message)
+{
+    socket->sendTextMessage(message);
 }
 
 void Client::on_lineEdit_returnPressed()
 {
     QString str=ui->lineEdit->text();
-    SendToServer(str);
+    sendMessage(str);
 }
 

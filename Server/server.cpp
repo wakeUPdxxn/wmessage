@@ -1,6 +1,7 @@
 #include "server.h"
 #include <QDebug>
 #include <QFile>
+#include <authentication.h>
 
 Server::Server(QObject *parent)
     : QWebSocketServer{"MyServer",QWebSocketServer::NonSecureMode,parent}
@@ -8,7 +9,11 @@ Server::Server(QObject *parent)
     QFile data("C:/Users/DXXN/Documents/Client-Server-messanger/Server/apiKey.txt");
     if(data.open(QIODevice::ReadOnly | QIODevice::Text)){
         QTextStream in(&data);
-        auth.setApiKey(in.readLine());
+        apiKey=in.readLine();
+        data.close();
+    }
+    else{
+        qDebug() << "unable to read apiKey file";
     }
     if(this->listen(QHostAddress::Any,2323)){
         qDebug() << "start";
@@ -16,7 +21,6 @@ Server::Server(QObject *parent)
     else {
         qDebug() << "error";
     }
-    socket=NULL;
     connect(this,&Server::newConnection,this, &Server::newClient);
 }
 
@@ -24,37 +28,83 @@ void Server::newClient(){
 
     socket = new QWebSocket;
     socket = this->nextPendingConnection();
-    connect(socket,&QWebSocket::textMessageReceived,this,&Server::readyRead);
+    connect(socket,&QWebSocket::textMessageReceived,this,&Server::textMessageReceived);
+    connect(socket,&QWebSocket::binaryMessageReceived,this,&Server::binaryMessageRecived);
     connect(socket,&QWebSocket::disconnected,this,&Server::disconnectedEvent);
     connect(socket,&QWebSocket::disconnected,socket,&QWebSocket::deleteLater); //Очистка сокета при получении сигнала об отключении клиента
+
 
     SClients[socket->peerAddress()]=socket;
     qDebug() << "Client connected" << socket->peerAddress();
 }
 
-void Server::readyRead(const QString &message){
+void Server::textMessageReceived(const QString &message){
     socket=(QWebSocket*)sender();
     qDebug() << "Message from" << socket->peerAddress() << message;
+}
+
+void Server::binaryMessageRecived(const QByteArray &data)
+{
+    socket=(QWebSocket*)sender();
+    QDataStream request(data);
+    QString payload;
+    request >> payload;
+    if(payload=="authentication"){
+        Authentication *auth=new Authentication(this,socket);
+        auth->setApiKey(apiKey);
+        connect(auth,&Authentication::readyToResponse,this,&Server::sendBinaryToClient);
+
+        QString email;
+        QString password;
+        request >> email;
+        request >> password;
+        qDebug() << "authentication required from" << "from: " << socket->peerAddress()
+                 << "with data {"
+                 << "email: " << email
+                 << "password:" << password
+                 << "}";
+        auth->signUserIn(email,password);
+    }
+    else if(payload=="registration"){
+        Authentication *auth=new Authentication(this,socket);
+        auth->setApiKey(apiKey);
+        connect(auth,&Authentication::readyToResponse,this,&Server::sendBinaryToClient);
+        QString nickname;
+        QString email;
+        QString password;
+        request >> nickname;
+        request >> email;
+        request >> password;
+        qDebug() << "regestration required from:" << socket->peerAddress()
+                 << "with data {"
+                 << "nickname" << nickname
+                 << "email: " << email
+                 << "password:" << password
+                 << "}";
+        auth->signUserUp(email,password);
+    }
 }
 
 void Server::disconnectedEvent()
 {
     QWebSocket *clientSock= qobject_cast<QWebSocket *>(sender());
-    if (NULL == clientSock) {
+    if (clientSock==NULL) {
         return;
     }
     qDebug() << "Client disconnected" << clientSock->peerAddress();
 }
 
-void Server::sendToClient(const QString &str,const QHostAddress &clientAddress)
+void Server::sendMessageToClient(const QString &message,const QHostAddress &clientAddress)
 {
-    Data.clear();
-    QDataStream out(&Data,QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_6_4);
-    out << quint16(0) << str;
-    out.device()->seek(0);
-    out << quint16(Data.size()-sizeof(quint16));
-    SClients[clientAddress]->sendTextMessage(str);
+    SClients[clientAddress]->sendTextMessage(message);
+}
+
+void Server::sendBinaryToClient(const QString &message, const QHostAddress &clientAddress)
+{
+    QByteArray msg;
+    QDataStream data(&msg,QIODevice::WriteOnly);
+    data << message;
+    SClients[clientAddress]->sendBinaryMessage(msg);
 }
 
 

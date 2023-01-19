@@ -12,33 +12,36 @@ class Login : public QWidget
     Q_OBJECT
 
 public:
-    explicit Login(QWidget *parent = nullptr,QWebSocket *sock=nullptr);
+    Login(QWidget *parent,QWebSocket *sock);
     ~Login();
-    void SendLoginPassword();
 
-private slots:    
+public slots:
+    void responseReceived(const QByteArray &response);
+
+signals:
+    void signedIn();
+    void signUpRequired();
+
+private slots:
     void on_registration_clicked();;
-
     void on_login_pressed();
-
     void on_login_released();
-
     void on_show_pressed();
-
     void on_password_returnPressed();
-
     void on_email_returnPressed();
+    void on_email_textChanged(const QString &arg1);
+    void on_password_textChanged(const QString &arg1);
 
 private:
     Ui::Login *ui;
-    QByteArray Data;
     QWebSocket *socket;
     Registration *reg;
-    struct RESPONSE{
+    struct Request{
       QString payload;
       QString email;
       QString password;
-    }response;
+    }request;
+    void sendLoginPassword();
 };
 
 

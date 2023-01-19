@@ -9,9 +9,9 @@ Registration::Registration(QWidget *parent,QWebSocket *sock) :
     socket(sock)
 {
     ui->setupUi(this);
-    setFixedSize(496,469);
+    setFixedSize(496,490);
     setAttribute(Qt::WA_DeleteOnClose);
-    setWindowFlag(Qt::WindowStaysOnTopHint);
+    connect(socket,&QWebSocket::binaryMessageReceived,this,&Registration::responseReceived);
 }
 
 Registration::~Registration()
@@ -19,12 +19,16 @@ Registration::~Registration()
     delete ui;
 }
 
-void Registration::SendLoginPassword()
+void Registration::sendData()
 {
-    Data.clear();
-    QDataStream out(&Data,QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_6_3);
-    out << quint16(0) << response.payload << response.email << response.password;
+    QByteArray data;
+    QDataStream out(&data,QIODevice::WriteOnly);
+    out << request.payload;
+    out << request.nickname;
+    out << request.email;
+    out << request.password;
+
+    socket->sendBinaryMessage(data);
 }
 
 void Registration::on_registrate_pressed()
@@ -38,21 +42,27 @@ void Registration::on_registrate_released()
 {
     ui->registrate->setGraphicsEffect(nullptr);
     QString payload="registration";
+    QString username=ui->username->text();
     QString email=ui->email->text();
     QString password=ui->password->text();
-    if(email.isEmpty()||password.isEmpty()){
+    if(email.isEmpty()||password.isEmpty() || username.isEmpty()){
         if(email.isEmpty()){
             QMessageBox::information(this,"Error","Поле email не заполнено");
         }
         if(password.isEmpty()){
             QMessageBox::information(this,"Error","Поле password не заполнено");
         }
+        if(username.isEmpty()){
+            QMessageBox::information(this,"Error","Поле username не заполнено");
+        }
     }
     else{
-        response.payload=payload;
-        response.email=email;
-        response.password=password;
-        SendLoginPassword();
+        connect(socket,SIGNAL(binaryMessageReceived(QByteArray)),this,SLOT(responseReceived(QByteArray)));
+        request.payload=payload;
+        request.nickname=username;
+        request.email=email;
+        request.password=password;
+        sendData();
     }
 }
 
@@ -86,5 +96,26 @@ void Registration::on_email_returnPressed()
 void Registration::on_password_returnPressed()
 {
     on_registrate_released();
+}
+
+
+
+void Registration::on_username_returnPressed()
+{
+    on_registrate_released();
+}
+
+void Registration::responseReceived(const QByteArray &response)
+{
+    QDataStream data(response);
+    QString result;
+    data >> result;
+    if(result=="error"){
+        qDebug() << "registration error";
+    }
+    else{
+        emit signedUp();
+        this->close();
+    }
 }
 

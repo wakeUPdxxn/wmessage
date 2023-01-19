@@ -1,11 +1,13 @@
 #pragma once
 
-#include "login.h"
 #include <QMainWindow>
 #include <QMessageBox>
 #include <QWebSocket>
 #include <QDialog>
 #include <QLabel>
+#include <QFile>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Client;}
@@ -18,22 +20,24 @@ class Client : public QMainWindow
 public:
     Client(QWidget *parent = nullptr);
     ~Client();
+    bool isAuthorized();
+
+public slots:
+    void messageReceived(const QString &message);
+    void binaryMessageReceived(const QByteArray &msg);
+    void showSignUpForm();
+    void showSignInForm();
+    void swithAuthorizedState();
 
 private slots:
     void on_action_triggered();
     void on_lineEdit_returnPressed();
 
-public slots:
-    void readyRead(const QString &message);
-
 private:
     Ui::Client *ui;
     QByteArray Data;
     QWebSocket *socket;
-    Login *log;
-    bool authorized=0;
-    void login();
-    void SendToServer(QString str);
+    void sendMessage(const QString &message);
     
 };
 

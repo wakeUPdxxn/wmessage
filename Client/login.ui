@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>496</width>
-    <height>469</height>
+    <height>460</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -330,6 +330,29 @@ border-radius: 6px;
    </property>
    <property name="text">
     <string>Show</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="error">
+   <property name="geometry">
+    <rect>
+     <x>215</x>
+     <y>118</y>
+     <width>251</width>
+     <height>19</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Montserrat</family>
+     <pointsize>12</pointsize>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">color:rgb(255, 51, 0);</string>
+   </property>
+   <property name="text">
+    <string>Incorrect login or password</string>
    </property>
   </widget>
  </widget>

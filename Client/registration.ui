@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>496</width>
-    <height>469</height>
+    <height>490</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -26,7 +26,7 @@
    <property name="geometry">
     <rect>
      <x>30</x>
-     <y>250</y>
+     <y>330</y>
      <width>430</width>
      <height>45</height>
     </rect>
@@ -64,7 +64,7 @@ border-radius: 6px;
    <property name="geometry">
     <rect>
      <x>30</x>
-     <y>340</y>
+     <y>410</y>
      <width>430</width>
      <height>45</height>
     </rect>
@@ -106,7 +106,7 @@ border-radius: 6px;
    <property name="geometry">
     <rect>
      <x>30</x>
-     <y>150</y>
+     <y>230</y>
      <width>430</width>
      <height>45</height>
     </rect>
@@ -141,7 +141,7 @@ border-radius: 6px;
    <property name="geometry">
     <rect>
      <x>30</x>
-     <y>120</y>
+     <y>200</y>
      <width>61</width>
      <height>19</height>
     </rect>
@@ -164,7 +164,7 @@ color:rgb(252, 238, 255);</string>
    <property name="geometry">
     <rect>
      <x>30</x>
-     <y>220</y>
+     <y>300</y>
      <width>91</width>
      <height>16</height>
     </rect>
@@ -212,7 +212,7 @@ font: bold</string>
    <property name="geometry">
     <rect>
      <x>390</x>
-     <y>262</y>
+     <y>342</y>
      <width>51</width>
      <height>21</height>
     </rect>
@@ -226,6 +226,64 @@ border-radius: 6px;
    </property>
    <property name="text">
     <string>Show</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="username">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>130</y>
+     <width>430</width>
+     <height>45</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Candara</family>
+     <pointsize>14</pointsize>
+     <bold>false</bold>
+    </font>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QLineEdit {
+background-color: #22222e;
+color:rgb(252, 238, 255);
+border:2px solid rgb(99, 99, 99);
+border-radius: 6px;
+}
+QLineEdit:focus{
+background-color: #22222e;
+color:rgb(252, 238, 255);
+border:3px solid rgb(190, 190, 190);
+border-radius: 6px;
+}
+</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_3">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>100</y>
+     <width>101</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Montserrat</family>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color: #22222e;
+color:rgb(252, 238, 255);</string>
+   </property>
+   <property name="text">
+    <string>Username</string>
    </property>
   </widget>
  </widget>

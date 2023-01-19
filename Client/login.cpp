@@ -9,8 +9,9 @@ Login::Login(QWidget *parent,QWebSocket *sock) :
     socket(sock)
 {
     ui->setupUi(this);
-    setFixedSize(496,469);
+    setFixedSize(496,460);
     setAttribute(Qt::WA_DeleteOnClose);
+    ui->error->setVisible(false);
 }
 
 Login::~Login()
@@ -18,17 +19,20 @@ Login::~Login()
     delete ui;
 }
 
-
-void Login::SendLoginPassword()
+void Login::sendLoginPassword()
 {
-
+    QByteArray data;
+    QDataStream out(&data,QIODevice::WriteOnly);
+    request.payload="authentication";
+    out << request.payload;
+    out << request.email;
+    out << request.password;
+    socket->sendBinaryMessage(data);
 }
 
 void Login::on_registration_clicked()
 {
-    reg=new Registration(nullptr,socket);
-    reg->setWindowTitle("Регистрация");
-    reg->show();
+    emit signUpRequired();
 }
 
 void Login::on_login_pressed()
@@ -53,10 +57,11 @@ void Login::on_login_released()
         }
     }
     else{
-        response.payload=payload;
-        response.email=email;
-        response.password=password;
-        SendLoginPassword();
+        connect(socket,SIGNAL(binaryMessageReceived(QByteArray)),this,SLOT(responseReceived(QByteArray)));
+        request.payload=payload;
+        request.email=email;
+        request.password=password;
+        sendLoginPassword();
     }
 }
 
@@ -90,5 +95,34 @@ void Login::on_password_returnPressed()
 void Login::on_email_returnPressed()
 {
     on_login_released();
+}
+
+void Login::responseReceived(const QByteArray &response)
+{
+    QDataStream data(response);
+    QString result;
+    data >> result;
+    if(result=="error"){
+        ui->error->setVisible(true);
+    }
+    else{
+        emit signedIn();
+        this->close();
+    }
+}
+
+void Login::on_email_textChanged(const QString &arg1)
+{
+    if(ui->error->isVisible()){
+        ui->error->setVisible(false);
+    }
+}
+
+
+void Login::on_password_textChanged(const QString &arg1)
+{
+    if(ui->error->isVisible()){
+        ui->error->setVisible(false);
+    }
 }
 

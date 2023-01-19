@@ -3,11 +3,12 @@
 #include <QVariantMap>
 #include <QNetworkRequest>
 
-Authentication::Authentication(QObject *parent)
+Authentication::Authentication(QObject *parent,QWebSocket *socket)
     : QObject{parent},
-      m_apiKey(QString())
+      clientToResponseSocket(socket)
 {
     m_networkAcessManager=new QNetworkAccessManager(this);
+    connect(this,SIGNAL(userSignedIn()),this,SLOT(performAuthenticatedDatabaseCall()));
 }
 
 Authentication::~Authentication()
@@ -48,8 +49,8 @@ void Authentication::networkReplyReadyRead()
 {
     QByteArray response = m_networkReplay->readAll();
     m_networkReplay ->deleteLater();
-    parseResponse(response);
     qDebug() << response;
+    parseResponse(response);
 }
 
 void Authentication::sendPost(const QString &url, const QJsonDocument &payload)
@@ -64,13 +65,20 @@ void Authentication::parseResponse(const QByteArray &response)
 {
     QJsonDocument jsonDocument =QJsonDocument::fromJson(response);
     if(jsonDocument.object().contains("error")){
-        QString errorType=jsonDocument.object().value("message").toString();
-        result="error";
-        qDebug() << errorType;
+        emit readyToResponse(QString("error"),clientToResponseSocket->peerAddress());
+        qDebug() << "error";
     }
     else if(jsonDocument.object().contains("kind")){
         QString idToken = jsonDocument.object().value("idToken").toString();
         m_idToken=idToken;
-        result="success";
+        emit readyToResponse(QString("success"),clientToResponseSocket->peerAddress());
+        emit userSignedIn();
+        qDebug() << "success";
     }
 }
+
+void Authentication::performAuthenticatedDatabaseCall(){
+    Databasehandler *dbHandle = new Databasehandler(this,m_idToken);
+    dbHandle->grabUserData();
+}
+

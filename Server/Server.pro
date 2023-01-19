@@ -11,6 +11,7 @@ CONFIG -= app_bundle
 
 SOURCES += \
         authentication.cpp \
+        databasehandler.cpp \
         main.cpp \
         server.cpp
 
@@ -21,4 +22,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     authentication.h \
+    databasehandler.h \
     server.h
