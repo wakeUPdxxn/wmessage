@@ -9,3 +9,6 @@ Writing with Qt 6.4.
 - Change the endpoint in method "grabUserData" of the file named "databasehandler.cpp" to your actual database link.
 ### On client:
 - Change the current path to the userData file in methods "setAuthrorized" and "isAuthorized" in "client.cpp"
+
+ I apologize for the current inconvenience with launching. 
+In the future,neares to realese, this process will be much easier. 
