@@ -12,24 +12,30 @@ class Authentication : public QObject
 {
     Q_OBJECT
 public:
-    explicit Authentication(QObject *parent = nullptr,QWebSocket *clientSocket=nullptr);
+    explicit Authentication(QObject *parent=nullptr);
     ~Authentication();
     void setApiKey(const QString &apiKey);
-    void signUserUp(const QString & email,const QString &password);
+    void setClientToResponseAddress(const QHostAddress &clientAddress);
+    void signUserUp(const QString & email,const QString &password,const QString &nickname);
     void signUserIn(const QString & email,const QString &password);
 
 public slots:
     void networkReplyReadyRead();
+
+private slots:
     void performAuthenticatedDatabaseCall();
+    void addNewUserToDatabase();
 
 signals:
     void userSignedIn();
-    void userRegistarted();
+    void userSignedUp();
     void readyToResponse(const QString &result,const QHostAddress &clientAddress);
 
 private:
+    QString signingUpUserNick;
+    QString currentOperation;
     QString m_apiKey;
-    QWebSocket *clientToResponseSocket;
+    QHostAddress clientToResponseAdress;
     QNetworkAccessManager * m_networkAcessManager;
     QNetworkReply * m_networkReplay;
     QString m_idToken;

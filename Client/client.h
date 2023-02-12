@@ -30,8 +30,7 @@ public slots:
     void swithAuthorizedState();
 
 private slots:
-    void on_action_triggered();
-    void on_lineEdit_returnPressed();
+    //void on_action_triggered();
 
 private:
     Ui::Client *ui;

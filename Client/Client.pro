@@ -23,9 +23,9 @@ HEADERS += \
     login.h
 
 FORMS += \
-    client.ui \
     login.ui \
-    registration.ui
+    registration.ui \
+    client.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

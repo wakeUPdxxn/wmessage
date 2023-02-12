@@ -86,7 +86,7 @@ void Client::showSignUpForm() {
     reg->show();
 }
 
-void Client::on_action_triggered()
+/*void Client::on_action_triggered()
 {
    QDialog logout(this);
    logout.setWindowTitle("Выход");
@@ -115,11 +115,11 @@ void Client::on_action_triggered()
        swithAuthorizedState();
        QMainWindow::close();
    }
-}
+}*/
 
 void Client::messageReceived(const QString &message)
 {
-    ui->textBrowser->append(message);
+    //ui->textBrowser->append(message);
 }
 
 void Client::binaryMessageReceived(const QByteArray &msg)
@@ -135,9 +135,5 @@ void Client::sendMessage(const QString &message)
     socket->sendTextMessage(message);
 }
 
-void Client::on_lineEdit_returnPressed()
-{
-    QString str=ui->lineEdit->text();
-    sendMessage(str);
-}
+
 

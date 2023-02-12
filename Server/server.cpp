@@ -6,7 +6,7 @@
 Server::Server(QObject *parent)
     : QWebSocketServer{"MyServer",QWebSocketServer::NonSecureMode,parent}
 {
-    QFile data("C:/Users/DXXN/Documents/Client-Server-messanger/Server/apiKey.txt");
+    QFile data("C:/Qt/projects/Client-Server-messanger/Server/apiKey.txt");
     if(data.open(QIODevice::ReadOnly | QIODevice::Text)){
         QTextStream in(&data);
         apiKey=in.readLine();
@@ -50,7 +50,8 @@ void Server::binaryMessageRecived(const QByteArray &data)
     QString payload;
     request >> payload;
     if(payload=="authentication"){
-        Authentication *auth=new Authentication(this,socket);
+        Authentication *auth=new Authentication(this);
+        auth->setClientToResponseAddress(socket->peerAddress());
         auth->setApiKey(apiKey);
         connect(auth,&Authentication::readyToResponse,this,&Server::sendBinaryToClient);
 
@@ -66,7 +67,8 @@ void Server::binaryMessageRecived(const QByteArray &data)
         auth->signUserIn(email,password);
     }
     else if(payload=="registration"){
-        Authentication *auth=new Authentication(this,socket);
+        Authentication *auth=new Authentication(this);
+        auth->setClientToResponseAddress(socket->peerAddress());
         auth->setApiKey(apiKey);
         connect(auth,&Authentication::readyToResponse,this,&Server::sendBinaryToClient);
         QString nickname;
@@ -81,7 +83,7 @@ void Server::binaryMessageRecived(const QByteArray &data)
                  << "email: " << email
                  << "password:" << password
                  << "}";
-        auth->signUserUp(email,password);
+        auth->signUserUp(email,password,nickname);
     }
 }
 

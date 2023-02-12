@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>804</width>
+    <height>601</height>
    </rect>
   </property>
   <property name="font">
@@ -20,65 +20,151 @@
   <property name="windowTitle">
    <string>Client</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">border:0px;
+
+</string>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <property name="styleSheet">
     <string notr="true">background-color: #22222e;
 </string>
    </property>
-   <widget class="QTextBrowser" name="textBrowser">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>10</y>
-      <width>256</width>
-      <height>192</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="lineEdit">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>220</y>
-      <width>181</width>
-      <height>31</height>
-     </rect>
-    </property>
-   </widget>
-  </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>800</width>
-     <height>24</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <family>Montserrat</family>
-     <pointsize>11</pointsize>
-     <italic>false</italic>
-     <bold>false</bold>
-    </font>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">background-color: rgb(54, 54, 54)</string>
-   </property>
-   <widget class="QMenu" name="menu">
-    <property name="font">
-     <font>
-      <family>Montserrat</family>
-      <pointsize>10</pointsize>
-     </font>
-    </property>
-    <property name="title">
-     <string>Основное</string>
-    </property>
-    <addaction name="action"/>
-   </widget>
-   <addaction name="menu"/>
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <item alignment="Qt::AlignLeft">
+     <widget class="QFrame" name="leftSideFrame">
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QFrame" name="leftTopFrame">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QPushButton" name="menu">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Ignored">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normaloff>../src/free-icon-user-482636.png</normaloff>../src/free-icon-user-482636.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="search">
+            <property name="font">
+             <font>
+              <family>Montserrat</family>
+              <pointsize>11</pointsize>
+             </font>
+            </property>
+            <property name="mouseTracking">
+             <bool>true</bool>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QLineEdit {
+background-color: #22222e;
+color:rgb(103, 103, 103);
+border:2px solid rgb(99, 99, 99);
+border-radius: 6px;
+}
+QLineEdit:focus{
+background-color: #22222e;
+border:2px solid rgb(190, 190, 190);
+border-radius: 6px;
+}</string>
+            </property>
+            <property name="text">
+             <string>Explore chats</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QListWidget" name="dialogsList"/>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QFrame" name="currentChatFrame">
+      <property name="styleSheet">
+       <string notr="true">background-color:rgb(25, 25, 34)</string>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QFrame" name="currentDialogTopBar">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="noSelectedChatsInfo">
+         <property name="styleSheet">
+          <string notr="true">color:rgb(252, 238, 255);
+font: bold;
+background-color:rgb(34, 34, 46);
+border-radius: 12px;</string>
+         </property>
+         <property name="text">
+          <string>   Select or create a chat to see messages</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QListWidget" name="currentChatList"/>
+       </item>
+       <item>
+        <widget class="QFrame" name="messageBar">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+   </layout>
   </widget>
   <action name="action">
    <property name="text">

@@ -1,6 +1,7 @@
 QT -= gui
 QT += core network
 QT += websockets
+QT += concurrent
 
 CONFIG += c++17 console
 CONFIG -= app_bundle

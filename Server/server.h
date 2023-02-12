@@ -3,6 +3,7 @@
 #include <QObject>
 #include <QWebSocket>
 #include <QWebSocketServer>
+#include <QThread>
 
 class Server:public QWebSocketServer
 {
