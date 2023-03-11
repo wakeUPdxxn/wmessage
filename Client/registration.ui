@@ -286,6 +286,29 @@ color:rgb(252, 238, 255);</string>
     <string>Username</string>
    </property>
   </widget>
+  <widget class="QLabel" name="error">
+   <property name="geometry">
+    <rect>
+     <x>210</x>
+     <y>100</y>
+     <width>251</width>
+     <height>19</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Montserrat</family>
+     <pointsize>12</pointsize>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">color:rgb(255, 51, 0);</string>
+   </property>
+   <property name="text">
+    <string>Incorrect login or password</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>

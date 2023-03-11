@@ -10,8 +10,10 @@ Registration::Registration(QWidget *parent,QWebSocket *sock) :
 {
     ui->setupUi(this);
     setFixedSize(496,490);
+    setWindowTitle("Registration");
+    setWindowFlag(Qt::WindowStaysOnTopHint);
     setAttribute(Qt::WA_DeleteOnClose);
-    connect(socket,&QWebSocket::binaryMessageReceived,this,&Registration::responseReceived);
+    ui->error->setVisible(false);
 }
 
 Registration::~Registration()
@@ -98,8 +100,6 @@ void Registration::on_password_returnPressed()
     on_registrate_released();
 }
 
-
-
 void Registration::on_username_returnPressed()
 {
     on_registrate_released();
@@ -110,10 +110,10 @@ void Registration::responseReceived(const QByteArray &response)
     QDataStream data(response);
     QString result;
     data >> result;
-    if(result=="error"){
-        qDebug() << "registration error";
+    if(result=="SignUpError"){
+        ui->error->setVisible(true);
     }
-    else{
+    else if(result=="SignUpSuccess"){
         emit signedUp();
         this->close();
     }

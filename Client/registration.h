@@ -1,8 +1,8 @@
 #pragma once
 
-#include <QWebSocket>
 #include <QObject>
 #include <QWidget>
+#include <QWebSocket>
 
 namespace Ui {
 class Registration;
@@ -21,7 +21,6 @@ public slots:
     void responseReceived(const QByteArray &response);
 
 signals:
-
     void signedUp();
 
 private slots:

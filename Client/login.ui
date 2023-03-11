@@ -336,7 +336,7 @@ border-radius: 6px;
    <property name="geometry">
     <rect>
      <x>215</x>
-     <y>118</y>
+     <y>120</y>
      <width>251</width>
      <height>19</height>
     </rect>

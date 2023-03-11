@@ -10,6 +10,8 @@ Login::Login(QWidget *parent,QWebSocket *sock) :
 {
     ui->setupUi(this);
     setFixedSize(496,460);
+    setWindowTitle("Authentication");
+    setWindowFlag(Qt::WindowStaysOnTopHint);
     setAttribute(Qt::WA_DeleteOnClose);
     ui->error->setVisible(false);
 }
@@ -102,10 +104,10 @@ void Login::responseReceived(const QByteArray &response)
     QDataStream data(response);
     QString result;
     data >> result;
-    if(result=="error"){
+    if(result=="SignInError"){
         ui->error->setVisible(true);
     }
-    else{
+    else if(result=="SignInSuccess"){
         emit signedIn();
         this->close();
     }
@@ -117,7 +119,6 @@ void Login::on_email_textChanged(const QString &arg1)
         ui->error->setVisible(false);
     }
 }
-
 
 void Login::on_password_textChanged(const QString &arg1)
 {

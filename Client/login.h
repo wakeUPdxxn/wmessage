@@ -1,6 +1,7 @@
 #pragma once
 
-#include "registration.h"
+#include <QObject>
+#include <QWidget>
 #include <QWebSocket>
 
 namespace Ui {
@@ -35,7 +36,6 @@ private slots:
 private:
     Ui::Login *ui;
     QWebSocket *socket;
-    Registration *reg;
     struct Request{
       QString payload;
       QString email;
