@@ -3,10 +3,13 @@
 #include <QVariantMap>
 #include <QNetworkRequest>
 
+QString Authentication::m_apiKey="";
+
 Authentication::Authentication(QObject *parent)
     : QObject{parent}
 {
     m_networkAcessManager=new QNetworkAccessManager(this);
+    db =new Databasehandler(this);
     connect(this,SIGNAL(userSignedIn()),this,SLOT(performAuthenticatedDatabaseCall()));
     connect(this,SIGNAL(userSignedUp()),this,SLOT(addNewUserToDatabase()));
 }
@@ -14,11 +17,7 @@ Authentication::Authentication(QObject *parent)
 Authentication::~Authentication()
 {
     m_networkAcessManager->deleteLater();
-}
-
-void Authentication::setApiKey(const QString &apiKey)
-{
-    m_apiKey=apiKey;
+    m_networkReplay->deleteLater();
 }
 
 void Authentication::setClientToResponseAddress(const QHostAddress &clientAddress)
@@ -28,6 +27,13 @@ void Authentication::setClientToResponseAddress(const QHostAddress &clientAddres
 
 void Authentication::signUserUp(const QString &email, const QString &password,const QString &nickname)
 {
+    db->grabUserData();
+    QFuture<bool>isUnique= QtConcurrent::run(&Databasehandler::validateUserNick,nickname);
+    isUnique.waitForFinished();
+    if(!isUnique.result()){
+        emit readyToResponse(QString("NickAlreadyExist"),clientToResponseAdress);
+        return;
+    }
     signingUpUserNick=nickname;
     currentOperation="signUp";
     QString signUpEndpoint = "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key="+m_apiKey;
@@ -53,6 +59,11 @@ void Authentication::signUserIn(const QString &email, const QString &password)
     sendPost(signInEndpoint,jsonPayload);
 }
 
+void Authentication::setApiKey(const QString &apiKey)
+{
+    m_apiKey=apiKey;
+}
+
 void Authentication::networkReplyReadyRead()
 {
     QByteArray response = m_networkReplay->readAll();
@@ -73,23 +84,24 @@ void Authentication::parseResponse(const QByteArray &response)
 {
     QJsonDocument jsonDocument =QJsonDocument::fromJson(response);
     if(jsonDocument.object().contains("error")){
-        emit readyToResponse(QString("error"),clientToResponseAdress);
         if(currentOperation=="signIn"){
+            emit readyToResponse(QString("SignInError"),clientToResponseAdress);
             qDebug() << "SignIn faild";
         }
         else{
+            emit readyToResponse(QString("SignUpError"),clientToResponseAdress);
             qDebug() << "SignUp faild";
         }
     }
     else if(jsonDocument.object().contains("kind")){
-        QString idToken = jsonDocument.object().value("idToken").toString();
-        m_idToken=idToken;
-        emit readyToResponse(QString("success"),clientToResponseAdress);
+        m_idToken = jsonDocument.object().value("idToken").toString();
         if(currentOperation=="signIn"){
+            emit readyToResponse(QString("SignInSuccess"),clientToResponseAdress);
             emit userSignedIn();
             qDebug() << "SignIn success";
         }
         else{
+            emit readyToResponse(QString("SignUpSuccess"),clientToResponseAdress);
             emit userSignedUp();
             qDebug() << "SignUp success";
         }
@@ -97,12 +109,10 @@ void Authentication::parseResponse(const QByteArray &response)
 }
 
 void Authentication::performAuthenticatedDatabaseCall(){
-    Databasehandler *dbHandler = new Databasehandler(this,m_idToken);
-    dbHandler->grabUserData();
+    db->grabUserData();
 }
 
 void Authentication::addNewUserToDatabase(){
-    Databasehandler *dbHandler =new Databasehandler(this,m_idToken);
-    dbHandler->needToAddNewUser(signingUpUserNick);
+    db->addUser(signingUpUserNick,m_idToken);
 }
 

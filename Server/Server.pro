@@ -1,5 +1,6 @@
 QT -= gui
 QT += core network
+QT +=core
 QT += websockets
 QT += concurrent
 
@@ -25,3 +26,4 @@ HEADERS += \
     authentication.h \
     databasehandler.h \
     server.h
+INCLUDEPATH +=C:/libs/firebase_cpp_sdk/include

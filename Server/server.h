@@ -9,9 +9,9 @@ class Server:public QWebSocketServer
 {
 public:
     explicit Server(QObject *parent = nullptr);
+    ~Server();
 private:
     QWebSocket *socket;
-    QString apiKey; // УДАЛИТЬ И СДЕЛАТЬ STATIC В КЛАССЕ АВТОРИЗАЦИИ
     QHash<const QHostAddress,QWebSocket *> SClients;
     void sendMessageToClient(const QString &message,const QHostAddress &clientAddress);
 

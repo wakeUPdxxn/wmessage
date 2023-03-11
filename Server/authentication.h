@@ -14,10 +14,10 @@ class Authentication : public QObject
 public:
     explicit Authentication(QObject *parent=nullptr);
     ~Authentication();
-    void setApiKey(const QString &apiKey);
     void setClientToResponseAddress(const QHostAddress &clientAddress);
     void signUserUp(const QString & email,const QString &password,const QString &nickname);
     void signUserIn(const QString & email,const QString &password);
+    static void setApiKey(const QString &apiKey);
 
 public slots:
     void networkReplyReadyRead();
@@ -32,9 +32,10 @@ signals:
     void readyToResponse(const QString &result,const QHostAddress &clientAddress);
 
 private:
+    static QString m_apiKey;
     QString signingUpUserNick;
     QString currentOperation;
-    QString m_apiKey;
+    Databasehandler *db;
     QHostAddress clientToResponseAdress;
     QNetworkAccessManager * m_networkAcessManager;
     QNetworkReply * m_networkReplay;

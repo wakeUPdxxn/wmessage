@@ -9,19 +9,24 @@ Server::Server(QObject *parent)
     QFile data("C:/Qt/projects/Client-Server-messanger/Server/apiKey.txt");
     if(data.open(QIODevice::ReadOnly | QIODevice::Text)){
         QTextStream in(&data);
-        apiKey=in.readLine();
         data.close();
+        Authentication::setApiKey(QString(in.readLine()));
     }
     else{
-        qDebug() << "unable to read apiKey file";
+        qDebug() << "Unable to read apiKey file";
     }
     if(this->listen(QHostAddress::Any,2323)){
-        qDebug() << "start";
+        qDebug() << "Server started";
     }
     else {
-        qDebug() << "error";
+        qDebug() << "Error occurred while starting";
     }
     connect(this,&Server::newConnection,this, &Server::newClient);
+}
+
+Server::~Server()
+{
+    socket->deleteLater();
 }
 
 void Server::newClient(){
@@ -32,7 +37,6 @@ void Server::newClient(){
     connect(socket,&QWebSocket::binaryMessageReceived,this,&Server::binaryMessageRecived);
     connect(socket,&QWebSocket::disconnected,this,&Server::disconnectedEvent);
     connect(socket,&QWebSocket::disconnected,socket,&QWebSocket::deleteLater); //Очистка сокета при получении сигнала об отключении клиента
-
 
     SClients[socket->peerAddress()]=socket;
     qDebug() << "Client connected" << socket->peerAddress();
@@ -52,7 +56,6 @@ void Server::binaryMessageRecived(const QByteArray &data)
     if(payload=="authentication"){
         Authentication *auth=new Authentication(this);
         auth->setClientToResponseAddress(socket->peerAddress());
-        auth->setApiKey(apiKey);
         connect(auth,&Authentication::readyToResponse,this,&Server::sendBinaryToClient);
 
         QString email;
@@ -69,7 +72,6 @@ void Server::binaryMessageRecived(const QByteArray &data)
     else if(payload=="registration"){
         Authentication *auth=new Authentication(this);
         auth->setClientToResponseAddress(socket->peerAddress());
-        auth->setApiKey(apiKey);
         connect(auth,&Authentication::readyToResponse,this,&Server::sendBinaryToClient);
         QString nickname;
         QString email;
