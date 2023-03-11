@@ -1,15 +1,15 @@
 #include "client.h"
-#include "login.h"
 #include "qdialogbuttonbox.h"
 #include "qformlayout.h"
 #include "ui_client.h"
+#include "login.h"
+#include "registration.h"
 
 Client::Client(QWidget *parent)
     : QMainWindow(parent),
       ui(new Ui::Client)
 {
     ui->setupUi(this);
-    setAttribute(Qt::WA_DeleteOnClose);
     socket=new QWebSocket;
     socket->open(QUrl("ws://localhost:2323"));
     if(socket->state()!=QAbstractSocket::ConnectingState){
@@ -37,11 +37,9 @@ bool Client::isAuthorized()
 {
     QFile userData("C:/Qt/projects/Client-Server-messanger/Client/userData.json");
     userData.open(QIODevice::ReadOnly);
-    QString data;
-    data=userData.readAll();
+    QString data=userData.readAll();
     userData.close();
-    QJsonDocument doc=QJsonDocument::fromJson(data.toUtf8());
-    QJsonObject obj=doc.object();
+    QJsonObject obj=QJsonDocument::fromJson(data.toUtf8()).object();
     if(obj["authorized"].toBool()==false){
        return false;
     }
@@ -53,11 +51,9 @@ bool Client::isAuthorized()
 void Client::swithAuthorizedState(){
     QFile userData("C:/Qt/projects/Client-Server-messanger/Client/userData.json");
     userData.open(QIODevice::ReadOnly);
-    QString data;
-    data=userData.readAll();
+    QString data=userData.readAll();
     userData.close();
-    QJsonDocument doc=QJsonDocument::fromJson(data.toUtf8());
-    QJsonObject obj=doc.object();
+    QJsonObject obj=QJsonDocument::fromJson(data.toUtf8()).object();
     if(obj["authorized"].toBool()==false){
         obj["authorized"]=true;
     }
@@ -66,13 +62,12 @@ void Client::swithAuthorizedState(){
     }
     userData.open(QIODevice::WriteOnly);
     userData.write(QJsonDocument(obj).toJson());
+    userData.close();
 }
 
 
 void Client::showSignInForm() {
    Login *log=new Login(nullptr,socket);
-   log->setWindowTitle("Authentication");
-   log->setWindowFlag(Qt::WindowStaysOnTopHint);
    log->show();
    connect(log,&Login::signedIn,this,&Client::show);
    connect(log,&Login::signedIn,this,&Client::swithAuthorizedState);
@@ -80,9 +75,7 @@ void Client::showSignInForm() {
 }
 
 void Client::showSignUpForm() {
-    Registration *reg = new Registration(nullptr,socket);
-    reg->setWindowTitle("Registration");
-    reg->setWindowFlag(Qt::WindowStaysOnTopHint);
+    Registration *reg= new Registration(nullptr,socket);
     reg->show();
 }
 

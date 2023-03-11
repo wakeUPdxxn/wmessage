@@ -37,6 +37,5 @@ private:
     QByteArray Data;
     QWebSocket *socket;
     void sendMessage(const QString &message);
-    
 };
 
