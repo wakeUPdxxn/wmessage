@@ -6,26 +6,28 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QFuture>
+#include <QThread>
+#include <QtConcurrent>
+#include <QWaitCondition>
+#include <QMutex>
+#include <QMutexLocker>
 
 class Databasehandler : public QObject
 {
     Q_OBJECT
 public:
-    Databasehandler(QObject *parent,QString &m_idToken);
+    Databasehandler(QObject *parent);
     void grabUserData();
-    void addUser();
-    void needToAddNewUser(const QString &nickName);
+    void addUser(const QString &signedUpUserNick,const QString &m_idToken);
+    static bool validateUserNick(const QString &nickName);
 
 public slots:
     void networkReplyReadyRead();
 
 private:
-    bool addNewUser=false;
-    QString signedUpUserNick;
     QByteArray response;
     QNetworkAccessManager * m_networkAcessManager;
-    QNetworkReply * m_networkReplay;
-    QString accessedUserIdToken;
-
+    QNetworkReply * m_networkReply;
 };
 

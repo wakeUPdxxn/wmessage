@@ -1,26 +1,25 @@
 #include "databasehandler.h"
 
-Databasehandler::Databasehandler(QObject *parent,QString &m_idToken)
-    : QObject{parent},
-      accessedUserIdToken(m_idToken)
+QMutex m_mutex;
+QWaitCondition replyRead;
+
+Databasehandler::Databasehandler(QObject *parent)
+    : QObject{parent}
 {
     m_networkAcessManager=new QNetworkAccessManager(this);
 }
 
 void Databasehandler::grabUserData()
 {
-    QString endPoint="https://messanger-80c21-default-rtdb.europe-west1.firebasedatabase.app/users.json?auth=" + accessedUserIdToken;
-    m_networkReplay = m_networkAcessManager->get(QNetworkRequest(QUrl(endPoint)));
-    connect(m_networkReplay,&QNetworkReply::readyRead,this,&Databasehandler::networkReplyReadyRead);
+    QString endPoint="https://messanger-80c21-default-rtdb.europe-west1.firebasedatabase.app/users.json";
+    m_networkReply = m_networkAcessManager->get(QNetworkRequest(QUrl(endPoint)));
+    connect(m_networkReply,&QNetworkReply::readyRead,this,&Databasehandler::networkReplyReadyRead);
 }
 
-void Databasehandler::addUser()
+void Databasehandler::addUser(const QString &signedUpUserNick,const QString &accessedUserIdToken)
 {
     QString endPoint="https://messanger-80c21-default-rtdb.europe-west1.firebasedatabase.app/users.json?auth=" + accessedUserIdToken;
-    QJsonDocument jDoc=QJsonDocument::fromJson(response);
-    QVariantMap users=jDoc.object().toVariantMap();
     QVariantMap newUser;
-    newUser["id"]=users.size()+1;
     newUser["nickName"]=signedUpUserNick;
     QJsonDocument jsonDocument=QJsonDocument::fromVariant(newUser);
 
@@ -30,17 +29,16 @@ void Databasehandler::addUser()
 }
 
 void Databasehandler::networkReplyReadyRead()
-{
-    response = m_networkReplay->readAll();
-    if(addNewUser){
-        addUser();
-    }
-    m_networkReplay ->deleteLater();
+{  
+    response = m_networkReply->readAll();
+    qDebug() << response;
+    m_networkReply ->deleteLater();
+    replyRead.notify_one();
 }
 
-void Databasehandler::needToAddNewUser(const QString &nickName)
-{
-    addNewUser=true;
-    signedUpUserNick=nickName;
-    grabUserData();
+bool Databasehandler::validateUserNick(const QString &nickName){
+    QMutexLocker lk(&m_mutex);
+    qDebug() << "Waiting for response";
+    replyRead.wait(&m_mutex);
+    qDebug() << "finished";
 }
