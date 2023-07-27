@@ -227,7 +227,7 @@ color:rgb(252, 238, 255);</string>
    </property>
    <property name="font">
     <font>
-     <family>Candara</family>
+     <family>Century Gothic</family>
      <pointsize>14</pointsize>
      <bold>false</bold>
     </font>
@@ -262,7 +262,7 @@ border-radius: 6px;
    </property>
    <property name="font">
     <font>
-     <family>Candara</family>
+     <family>Century Gothic</family>
      <pointsize>14</pointsize>
     </font>
    </property>
@@ -353,6 +353,28 @@ border-radius: 6px;
    </property>
    <property name="text">
     <string>Incorrect login or password</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="keepIn">
+   <property name="geometry">
+    <rect>
+     <x>290</x>
+     <y>380</y>
+     <width>181</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Montserrat</family>
+     <pointsize>11</pointsize>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">color: rgb(252, 238, 255);</string>
+   </property>
+   <property name="text">
+    <string>Keep me logged in</string>
    </property>
   </widget>
  </widget>

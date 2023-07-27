@@ -29,17 +29,20 @@ private slots:
 signals:
     void userSignedIn();
     void userSignedUp();
-    void readyToResponse(const QString &result,const QHostAddress &clientAddress);
+    void userIdCaptured(const QString&UID,const QHostAddress &clientToResponseAddress);
+    void readyToResponse(const QByteArray &result,const QHostAddress &clientAddress);
 
 private:
     static QString m_apiKey;
-    QString signingUpUserNick;
+    QString processingUserNick;
+    QString processingUserId;
     QString currentOperation;
     Databasehandler *db;
-    QHostAddress clientToResponseAdress;
+    QHostAddress clientToResponseAddress;
     QNetworkAccessManager * m_networkAcessManager;
     QNetworkReply * m_networkReplay;
-    QString m_idToken;
+    QString user_RefreshToken;
+    QString users_AccessToken;
     void sendPost(const QString &url,const QJsonDocument &payload);
     void parseResponse(const QByteArray & response); 
 };

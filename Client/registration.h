@@ -3,6 +3,8 @@
 #include <QObject>
 #include <QWidget>
 #include <QWebSocket>
+#include <QFile>
+#include <QJsonDocument>
 
 namespace Ui {
 class Registration;

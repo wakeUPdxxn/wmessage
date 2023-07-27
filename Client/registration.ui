@@ -306,7 +306,7 @@ color:rgb(252, 238, 255);</string>
     <string notr="true">color:rgb(255, 51, 0);</string>
    </property>
    <property name="text">
-    <string>Incorrect login or password</string>
+    <string>Incorrect email or password</string>
    </property>
   </widget>
  </widget>

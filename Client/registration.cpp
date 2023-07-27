@@ -1,4 +1,5 @@
 #include "registration.h"
+#include "qjsonobject.h"
 #include "ui_registration.h"
 #include <QGraphicsDropShadowEffect>
 #include <QMessageBox>
@@ -49,13 +50,13 @@ void Registration::on_registrate_released()
     QString password=ui->password->text();
     if(email.isEmpty()||password.isEmpty() || username.isEmpty()){
         if(email.isEmpty()){
-            QMessageBox::information(this,"Error","Поле email не заполнено");
+            QMessageBox::information(this,"Error","Email is not filled ");
         }
         if(password.isEmpty()){
-            QMessageBox::information(this,"Error","Поле password не заполнено");
+            QMessageBox::information(this,"Error","Password is not filled");
         }
         if(username.isEmpty()){
-            QMessageBox::information(this,"Error","Поле username не заполнено");
+            QMessageBox::information(this,"Error","Username is not filled");
         }
     }
     else{
@@ -114,8 +115,29 @@ void Registration::responseReceived(const QByteArray &response)
         ui->error->setVisible(true);
     }
     else if(result=="SignUpSuccess"){
+        QString accesToken;
+        QString refreshToken;
+        QString UID;
+        data >> accesToken;
+        data >> refreshToken;
+        data >> UID;
+        QFile userData("./userData.json");
+        userData.open(QIODevice::ReadOnly);
+        QJsonObject obj=QJsonDocument::fromJson(userData.readAll()).object();
+        userData.close();
+        obj["UID"]=UID;
+        obj["nickName"]=request.nickname;
+        obj["refreshToken"]=refreshToken;
+        obj["accessToken"]=accesToken;
+        userData.open(QIODevice::WriteOnly);
+        userData.write(QJsonDocument(obj).toJson());
+        userData.close();
         emit signedUp();
         this->close();
+    }
+    else if(result=="NickAlreadyExist"){
+        ui->error->setText("Nickname is already in use");
+        ui->error->setVisible(true);
     }
 }
 

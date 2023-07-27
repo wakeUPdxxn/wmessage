@@ -50,7 +50,7 @@
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
-           <widget class="QPushButton" name="menu">
+           <widget class="QPushButton" name="me">
             <property name="enabled">
              <bool>true</bool>
             </property>
@@ -60,12 +60,22 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="styleSheet">
+             <string notr="true">border:2px solid rgb(99, 99, 99);
+border-radius: 6px;</string>
+            </property>
             <property name="text">
              <string/>
             </property>
             <property name="icon">
              <iconset>
-              <normaloff>../src/free-icon-user-482636.png</normaloff>../src/free-icon-user-482636.png</iconset>
+              <normaloff>profile-icon.png</normaloff>profile-icon.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>18</width>
+              <height>18</height>
+             </size>
             </property>
            </widget>
           </item>
@@ -94,7 +104,7 @@ border-radius: 6px;
 }</string>
             </property>
             <property name="text">
-             <string>Explore chats</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -127,12 +137,66 @@ border-radius: 6px;
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="styleSheet">
+          <string notr="true">#currentDialogTopBar &gt; QLabel {}</string>
+         </property>
          <property name="frameShape">
           <enum>QFrame::StyledPanel</enum>
          </property>
          <property name="frameShadow">
           <enum>QFrame::Raised</enum>
          </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <item>
+           <widget class="QLabel" name="userIco">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_3">
+            <item>
+             <widget class="QLabel" name="userNick">
+              <property name="font">
+               <font>
+                <family>Montserrat Black</family>
+                <pointsize>14</pointsize>
+                <italic>false</italic>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">color:rgb(138, 138, 138);
+font: bold;</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="status">
+              <property name="font">
+               <font>
+                <family>Montserrat</family>
+                <pointsize>11</pointsize>
+               </font>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">color:rgb(103, 103, 103);</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+         <zorder>status</zorder>
+         <zorder>userIco</zorder>
+         <zorder>userNick</zorder>
         </widget>
        </item>
        <item>
@@ -146,10 +210,24 @@ border-radius: 12px;</string>
          <property name="text">
           <string>   Select or create a chat to see messages</string>
          </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
         </widget>
        </item>
        <item>
-        <widget class="QListWidget" name="currentChatList"/>
+        <widget class="QListWidget" name="currentChatList">
+         <property name="styleSheet">
+          <string notr="true">#currentChatList &gt; QListWidgetItem
+{
+	border:4px solid;
+	color:rgb(228, 255, 211);
+}</string>
+         </property>
+         <property name="spacing">
+          <number>4</number>
+         </property>
+        </widget>
        </item>
        <item>
         <widget class="QFrame" name="messageBar">
@@ -159,6 +237,32 @@ border-radius: 12px;</string>
          <property name="frameShadow">
           <enum>QFrame::Raised</enum>
          </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QLineEdit" name="message">
+            <property name="font">
+             <font>
+              <pointsize>12</pointsize>
+             </font>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QLineEdit {
+background-color: #22222e;
+color:rgb(103, 103, 103);
+border:2px solid rgb(99, 99, 99);
+border-radius: 6px;
+}</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="send">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </item>
       </layout>

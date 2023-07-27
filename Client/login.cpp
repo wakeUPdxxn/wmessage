@@ -1,4 +1,5 @@
 #include "login.h"
+#include "qjsonobject.h"
 #include "ui_login.h"
 #include <QGraphicsDropShadowEffect>
 #include <QMessageBox>
@@ -108,7 +109,23 @@ void Login::responseReceived(const QByteArray &response)
         ui->error->setVisible(true);
     }
     else if(result=="SignInSuccess"){
+        QString UID;
+        QString newAccesToken;
+        data >> UID;
+        data >> newAccesToken;
+        QFile userData("./userData.json");
+        userData.open(QIODevice::ReadOnly);
+        QJsonObject obj=QJsonDocument::fromJson(userData.readAll()).object();
+        userData.close();
+        obj["accessToken"]=newAccesToken;
+        obj["UID"]=UID;
+        userData.open(QIODevice::WriteOnly);
+        userData.write(QJsonDocument(obj).toJson());
+        userData.close();
         emit signedIn();
+        if(ui->keepIn->checkState()==Qt::Checked){
+            emit keepIn();
+        }
         this->close();
     }
 }

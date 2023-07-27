@@ -4,6 +4,7 @@
 #include <QWebSocket>
 #include <QWebSocketServer>
 #include <QThread>
+#include <QStack>
 
 class Server:public QWebSocketServer
 {
@@ -11,15 +12,18 @@ public:
     explicit Server(QObject *parent = nullptr);
     ~Server();
 private:
-    QWebSocket *socket;
-    QHash<const QHostAddress,QWebSocket *> SClients;
-    void sendMessageToClient(const QString &message,const QHostAddress &clientAddress);
+    QHash<QPair<QString,const QHostAddress>,QWebSocket *> SClients;
+    QStack<QHostAddress>findUserCallers;
+    QStack<QString>requeiredNicksToFind;
+    void sendUsersList(const QList<QVariantMap>& users, const QHostAddress &requestSenderAddr);
 
 public slots:
     void newClient();
-    void textMessageReceived(const QString &message);
-    void binaryMessageRecived(const QByteArray &data);
+    void requestRecived(const QByteArray &data);
     void disconnectedEvent();
-    void sendBinaryToClient(const QString &message,const QHostAddress &clientAddress);
+    void sendAuthResultToClient(const QByteArray &response, const QHostAddress &clientAddress);
+    void makeUsersList(const QByteArray& response);
+    void setUserId(const QString&UID,const QHostAddress &userAddress);
+    void sendMessageToClient(const QString&idSender,const QString&idReceiver,const QString& message);
 };
 

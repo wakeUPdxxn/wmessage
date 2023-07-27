@@ -1,8 +1,5 @@
 #include "databasehandler.h"
 
-QMutex m_mutex;
-QWaitCondition replyRead;
-
 Databasehandler::Databasehandler(QObject *parent)
     : QObject{parent}
 {
@@ -11,16 +8,19 @@ Databasehandler::Databasehandler(QObject *parent)
 
 void Databasehandler::grabUserData()
 {
+    //QString endPoint2 = "https://firebasestorage.googleapis.com/v1beta/projects/messanger-80c21/buckets/icons?auth="+ users_AccessToken;
     QString endPoint="https://messanger-80c21-default-rtdb.europe-west1.firebasedatabase.app/users.json";
     m_networkReply = m_networkAcessManager->get(QNetworkRequest(QUrl(endPoint)));
-    connect(m_networkReply,&QNetworkReply::readyRead,this,&Databasehandler::networkReplyReadyRead);
+    connect(m_networkReply,&QNetworkReply::readyRead,this,&Databasehandler::networkReplyReadyRead,Qt::DirectConnection);
 }
 
-void Databasehandler::addUser(const QString &signedUpUserNick,const QString &accessedUserIdToken)
+void Databasehandler::addUser(const QString &signedUpUserNick, const QString &accessedUserToken, const QString &userId)
 {
-    QString endPoint="https://messanger-80c21-default-rtdb.europe-west1.firebasedatabase.app/users.json?auth=" + accessedUserIdToken;
+    QString endPoint="https://messanger-80c21-default-rtdb.europe-west1.firebasedatabase.app/users.json?auth=" + accessedUserToken;
     QVariantMap newUser;
+    newUser["UID"]=userId;
     newUser["nickName"]=signedUpUserNick;
+    newUser["status"]="Online";
     QJsonDocument jsonDocument=QJsonDocument::fromVariant(newUser);
 
     QNetworkRequest newUserRequest((QUrl(endPoint)));
@@ -31,14 +31,10 @@ void Databasehandler::addUser(const QString &signedUpUserNick,const QString &acc
 void Databasehandler::networkReplyReadyRead()
 {  
     response = m_networkReply->readAll();
-    qDebug() << response;
     m_networkReply ->deleteLater();
-    replyRead.notify_one();
+    emit processed(response);
 }
 
 bool Databasehandler::validateUserNick(const QString &nickName){
-    QMutexLocker lk(&m_mutex);
-    qDebug() << "Waiting for response";
-    replyRead.wait(&m_mutex);
-    qDebug() << "finished";
+
 }

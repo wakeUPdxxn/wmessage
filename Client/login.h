@@ -3,6 +3,8 @@
 #include <QObject>
 #include <QWidget>
 #include <QWebSocket>
+#include <QFile>
+#include <QJsonDocument>
 
 namespace Ui {
 class Login;
@@ -22,6 +24,7 @@ public slots:
 signals:
     void signedIn();
     void signUpRequired();
+    void keepIn();
 
 private slots:
     void on_registration_clicked();;

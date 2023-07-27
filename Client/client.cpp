@@ -1,9 +1,11 @@
 #include "client.h"
 #include "qdialogbuttonbox.h"
 #include "qformlayout.h"
+#include "qgraphicseffect.h"
 #include "ui_client.h"
 #include "login.h"
 #include "registration.h"
+#include <QHBoxLayout>
 
 Client::Client(QWidget *parent)
     : QMainWindow(parent),
@@ -17,15 +19,38 @@ Client::Client(QWidget *parent)
        exit(1);
     }
     connect(socket,SIGNAL(textMessageReceived(QString)),this,SLOT(messageReceived(QString)));
-    connect(socket,SIGNAL(binaryMessageReceived(QByteArray)),this,SLOT(binaryMessageReceived(QByteArray)));
+    connect(socket,SIGNAL(binaryMessageReceived(QByteArray)),this,SLOT(responseReceived(QByteArray)));
     connect(socket,&QWebSocket::disconnected,socket,&QWebSocket::deleteLater);
 
-    if(!isAuthorized()){
-        showSignInForm();
-    }
-    else{
+    parseUserData();
+    if(isAuthorized) {
+        connect(socket,&QWebSocket::connected,this,&Client::sendCallToServer);
         this->show();
     }
+    else {
+        showSignInForm();
+    }
+    ui->search->setPlaceholderText("Explore chats");
+    ui->message->setVisible(false);
+}
+
+void Client::parseUserData(){
+    QFile userData("./userData.json");
+    userData.open(QIODevice::ReadOnly);
+    QJsonObject obj=QJsonDocument::fromJson(userData.readAll()).object();
+    userData.close();
+    selfNickName=obj["nickName"].toString();
+    selfUID=obj["UID"].toString();
+    isAuthorized = obj["authorized"].toBool();
+}
+
+void Client::sendCallToServer()
+{
+    QByteArray data;
+    QDataStream out(&data,QIODevice::WriteOnly);
+    out << QString("comeBack");
+    out << selfUID;
+    socket->sendBinaryMessage(data);
 }
 
 Client::~Client()
@@ -33,27 +58,11 @@ Client::~Client()
     delete ui;
 }
 
-bool Client::isAuthorized()
-{
-    QFile userData("C:/Qt/projects/Client-Server-messanger/Client/userData.json");
-    userData.open(QIODevice::ReadOnly);
-    QString data=userData.readAll();
-    userData.close();
-    QJsonObject obj=QJsonDocument::fromJson(data.toUtf8()).object();
-    if(obj["authorized"].toBool()==false){
-       return false;
-    }
-    else{
-       return true;
-    }
-}
-
 void Client::swithAuthorizedState(){
-    QFile userData("C:/Qt/projects/Client-Server-messanger/Client/userData.json");
+    QFile userData("./userData.json");
     userData.open(QIODevice::ReadOnly);
-    QString data=userData.readAll();
+    QJsonObject obj=QJsonDocument::fromJson(userData.readAll()).object();
     userData.close();
-    QJsonObject obj=QJsonDocument::fromJson(data.toUtf8()).object();
     if(obj["authorized"].toBool()==false){
         obj["authorized"]=true;
     }
@@ -70,7 +79,7 @@ void Client::showSignInForm() {
    Login *log=new Login(nullptr,socket);
    log->show();
    connect(log,&Login::signedIn,this,&Client::show);
-   connect(log,&Login::signedIn,this,&Client::swithAuthorizedState);
+   connect(log,&Login::keepIn,this,&Client::swithAuthorizedState);
    connect(log,&Login::signUpRequired,this,&Client::showSignUpForm);
 }
 
@@ -115,18 +124,138 @@ void Client::messageReceived(const QString &message)
     //ui->textBrowser->append(message);
 }
 
-void Client::binaryMessageReceived(const QByteArray &msg)
+void Client::responseReceived(const QByteArray &response)
 {
-    QDataStream data(msg);
-    QString message;
-    data >> message;
-    qDebug() << message;
+
+    QDataStream data(response);
+    QString payload;
+    data >> payload;
+    if(payload=="UsersList"){
+        ui->dialogsList->clear();
+        data >> usersInSearch;
+        foreach(const auto &user,usersInSearch){
+            if(user["nickName"]!=selfNickName){
+                QListWidgetItem *item = new QListWidgetItem;
+                item->setForeground(QBrush(QColor(252, 238, 255)));
+                item->setFont(QFont("Montserrat Black"));
+                item->setText(user["nickName"].toString());
+                if(item->text()=="No matching results"){
+                    item->setFlags(item->flags() & Qt::ItemIsSelectable);
+                }
+                ui->dialogsList->addItem(item);
+            }
+            else {
+                QListWidgetItem *item = new QListWidgetItem;
+                item->setForeground(QBrush(QColor(252, 238, 255)));
+                item->setFont(QFont("Montserrat Black"));
+                item->setText("No matching results");
+                item->setFlags(item->flags() & Qt::ItemIsSelectable);
+                ui->dialogsList->addItem(item);
+            }
+        }
+    }
+    else if(payload=="newMessage"){
+        QString idSender;
+        QString message;
+        data >> idSender;
+        data >> message;
+        QListWidgetItem *item = new QListWidgetItem;
+        item->setForeground(QBrush(QColor(252, 238, 255)));
+        item->setBackground(QBrush(QColor(11, 117, 255)));
+        item->setTextAlignment(Qt::AlignLeft);
+        item->setFont(QFont("Montserrat Black",12));
+        item->setText(message);
+        ui->currentChatList->setBaseSize(QSize(372,416));
+        item->setSizeHint(QSize(20,20));
+        ui->currentChatList->addItem(item);
+    }
 }
 
-void Client::sendMessage(const QString &message)
+void Client::on_me_pressed()
 {
-    socket->sendTextMessage(message);
+    QGraphicsDropShadowEffect *shadow = new QGraphicsDropShadowEffect(this);
+    shadow->setOffset(3);
+    shadow->setBlurRadius(2);
+    ui->me->setGraphicsEffect(shadow);
+    ui->me->setStyleSheet("border:2px;"
+                          "solid rgb(190, 190, 190);"
+                          "border-radius: 6px;");
 }
 
 
+void Client::on_me_released()
+{
+     ui->me->setGraphicsEffect(nullptr);
+     ui->me->setStyleSheet("border:2px solid rgb(99, 99, 99);"
+                           "border-radius: 6px;");
+}
+
+
+void Client::on_search_textChanged(const QString &userNick)
+{
+    if(userNick>chatSearchData){
+        QByteArray data;
+        QDataStream out(&data,QIODevice::WriteOnly);
+        QString payload="findUser";
+        out << payload;
+        out << userNick;
+        socket->sendBinaryMessage(data);
+        chatSearchData=userNick;
+    }
+    if(userNick<chatSearchData){
+        ui->search->clear();
+    }
+    if(userNick.isEmpty()){
+        chatSearchData.clear();
+        ui->dialogsList->clear();
+    }
+}
+
+void Client::on_search_editingFinished()
+{
+    chatSearchData.clear();
+}
+
+
+void Client::on_dialogsList_itemDoubleClicked(QListWidgetItem *item)
+{
+    ui->userNick->setText(item->text());
+    chatSearchData.clear();
+    ui->search->clear();
+    ui->dialogsList->clear();
+    if(ui->noSelectedChatsInfo!=nullptr){
+        ui->noSelectedChatsInfo->deleteLater();
+    }
+    if(ui->message->isHidden()){
+        ui->message->setVisible(true);
+    }
+    QList<QVariantMap>::iterator pos=std::find_if(usersInSearch.begin(),usersInSearch.end(),[&](const QVariantMap&user){
+        return user["nickName"].toString()==item->text();
+    });
+    auto user=*pos;
+    currentChat.UID=user["UID"].toString();
+    currentChat.nickName=user["nickName"].toString();
+    currentChat.status=user["status"].toString();
+    ui->status->setText(currentChat.status);
+}
+
+
+void Client::on_message_returnPressed()
+{
+    QByteArray data;
+    QDataStream out(&data,QIODevice::WriteOnly);
+    QString payload="message";
+    out << payload;
+    out << currentChat.UID;
+    out << selfUID;
+    out << ui->message->text();
+    socket->sendBinaryMessage(data);
+    QListWidgetItem *item = new QListWidgetItem;
+    item->setForeground(QBrush(QColor(252, 238, 255)));
+    item->setBackground(QBrush(QColor(255, 100, 23)));
+    item->setTextAlignment(Qt::AlignRight);
+    item->setFont(QFont("Montserrat Black",12));
+    item->setText(QTime::currentTime().toString().chopped(3)+QString(" ")+ui->message->text());
+    ui->currentChatList->addItem(item);
+}
 
