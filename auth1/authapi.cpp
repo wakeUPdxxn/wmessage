@@ -13,33 +13,41 @@ void authApi::launch()
     else{
         qDebug() << "Api is working";
     }
-    openTheRouts();
+    makeRouts();
 }
 
-void authApi::openTheRouts()
+void authApi::makeRouts()
 {
     p_m_httpServer->route("/api/v1/logIn",QHttpServerRequest::Method::Post,[this](const QHttpServerRequest &request){
         return QtConcurrent::run([this, &request] () {
 
             p_m_RequestHandler = new RequestHandler();
 
-            if(p_m_RequestHandler->checkRequest(request)){
+            QVariantMap parseResult=p_m_RequestHandler->checkRequest(request,QString("logIn"));
+            if (parseResult.contains("error")) {
+                if(parseResult["reason"]=="undefiened"){
+                    //check fills on db;
+                }
+                QHttpServerResponse response(QJsonDocument::fromVariant(parseResult).object(),QHttpServerResponse::StatusCode::BadRequest);
+                response.setHeader("Access-Control-Allow-Origin","*");
+                return response;
+            }
+            else {
+                QVariantMap userData=parseResult;
 
-                QString userRefreshToken="token";
-                QHttpServerResponse response(userRefreshToken,QHttpServerResponse::StatusCode::Ok);
+                QString email=userData["email"].toString();
+                QString password=userData["password"].toString();
+                QString returnSecureToken=userData["returnSecureToken"].toString();
+                //db call
+                QString refreshToken="token";
+                QJsonObject responseData({QPair<QString,QJsonValue>("refreshToken","value")});
+                QHttpServerResponse response(responseData,QHttpServerResponse::StatusCode::Ok);
                 response.setHeader("Access-Control-Allow-Origin","*");
 
                 delete p_m_RequestHandler;
                 return response;
             }
-            else {
-                QHttpServerResponse response(QHttpServerResponse::StatusCode::BadRequest);
-                response.setHeader("Access-Control-Allow-Origin","*");
-                return response;
-            }
-
         });
     });
-
     //more routs;
 }

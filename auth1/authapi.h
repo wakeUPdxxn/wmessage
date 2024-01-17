@@ -17,6 +17,6 @@ private:
     RequestHandler *p_m_RequestHandler;
     mutable QHostAddress listeningAddr = QHostAddress::SpecialAddress::LocalHost;
     mutable qint16 listeningPort = 80;
-    void openTheRouts();
+    void makeRouts();
 };
 
