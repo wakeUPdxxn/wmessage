@@ -5,6 +5,8 @@
 #include <QWebSocket>
 #include <QFile>
 #include <QJsonDocument>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
 
 namespace Ui {
 class Login;
@@ -15,11 +17,11 @@ class Login : public QWidget
     Q_OBJECT
 
 public:
-    Login(QWidget *parent,QWebSocket *sock);
+    explicit Login(QWidget *parent=nullptr);
     ~Login();
 
 public slots:
-    void responseReceived(const QByteArray &response);
+    void parseResponse();
 
 signals:
     void signedIn();
@@ -38,13 +40,11 @@ private slots:
 
 private:
     Ui::Login *ui;
-    QWebSocket *socket;
-    struct Request{
-      QString payload;
-      QString email;
-      QString password;
-    }request;
-    void sendLoginPassword();
+    const QString api = "http://localhost/api/v1/logIn";
+    QNetworkAccessManager *m_NetAccessManager;
+    QNetworkReply *m_NetReply;
+    void sendPost(const QJsonDocument &request);
+    void makeRequest(const QString &email,const QString &password);
 };
 
 

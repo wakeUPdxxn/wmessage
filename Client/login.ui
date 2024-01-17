@@ -335,7 +335,7 @@ border-radius: 6px;
   <widget class="QLabel" name="error">
    <property name="geometry">
     <rect>
-     <x>215</x>
+     <x>290</x>
      <y>120</y>
      <width>251</width>
      <height>19</height>
@@ -352,7 +352,7 @@ border-radius: 6px;
     <string notr="true">color:rgb(255, 51, 0);</string>
    </property>
    <property name="text">
-    <string>Incorrect login or password</string>
+    <string>Incorrect login </string>
    </property>
   </widget>
   <widget class="QCheckBox" name="keepIn">

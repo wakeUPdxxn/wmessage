@@ -4,10 +4,9 @@
 #include <QGraphicsDropShadowEffect>
 #include <QMessageBox>
 
-Login::Login(QWidget *parent,QWebSocket *sock) :
+Login::Login(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::Login),
-    socket(sock)
+    ui(new Ui::Login)
 {
     ui->setupUi(this);
     setFixedSize(496,460);
@@ -15,22 +14,37 @@ Login::Login(QWidget *parent,QWebSocket *sock) :
     setWindowFlag(Qt::WindowStaysOnTopHint);
     setAttribute(Qt::WA_DeleteOnClose);
     ui->error->setVisible(false);
+    m_NetAccessManager=new QNetworkAccessManager();
 }
 
 Login::~Login()
 {
+    if(m_NetReply!=nullptr){
+        m_NetReply->deleteLater();
+    }
+    if(m_NetAccessManager!=nullptr){
+        m_NetAccessManager->deleteLater();
+    }
     delete ui;
 }
 
-void Login::sendLoginPassword()
+void Login::sendPost(const QJsonDocument &requestData)
 {
-    QByteArray data;
-    QDataStream out(&data,QIODevice::WriteOnly);
-    request.payload="authentication";
-    out << request.payload;
-    out << request.email;
-    out << request.password;
-    socket->sendBinaryMessage(data);
+    QNetworkRequest newRequest( (QUrl( api )) );
+    newRequest.setHeader(QNetworkRequest::ContentTypeHeader, QString("application/json"));
+    m_NetReply = m_NetAccessManager->post(newRequest,requestData.toJson());
+    connect(m_NetReply,&QNetworkReply::readyRead,this,&Login::parseResponse);
+}
+
+void Login::makeRequest(const QString &email, const QString &password)
+{
+    QVariantMap payload;
+    payload["email"]=email;
+    payload["password"]=password;
+    payload["returnSecureToken"]=true;
+
+    QJsonDocument jsonPayload=QJsonDocument::fromVariant(payload);
+    sendPost(jsonPayload);
 }
 
 void Login::on_registration_clicked()
@@ -48,23 +62,18 @@ void Login::on_login_pressed()
 void Login::on_login_released()
 {
     ui->login->setGraphicsEffect(nullptr);
-    QString payload="authentication";
     QString email=ui->email->text();
     QString password=ui->password->text();
     if(email.isEmpty()||password.isEmpty()){
         if(email.isEmpty()){
-            QMessageBox::information(this,"Error","Поле email не заполнено");
+            //QMessageBox::information(this,"Error","Поле email не заполнено");
         }
         if(password.isEmpty()){
-            QMessageBox::information(this,"Error","Поле password не заполнено");
+            //QMessageBox::information(this,"Error","Поле password не заполнено");
         }
     }
     else{
-        connect(socket,SIGNAL(binaryMessageReceived(QByteArray)),this,SLOT(responseReceived(QByteArray)));
-        request.payload=payload;
-        request.email=email;
-        request.password=password;
-        sendLoginPassword();
+        makeRequest(email,password);
     }
 }
 
@@ -100,32 +109,41 @@ void Login::on_email_returnPressed()
     on_login_released();
 }
 
-void Login::responseReceived(const QByteArray &response)
+void Login::parseResponse()
 {
-    QDataStream data(response);
-    QString result;
-    data >> result;
-    if(result=="SignInError"){
-        ui->error->setVisible(true);
+    QByteArray bytes = m_NetReply->readAll();
+    QJsonDocument response = QJsonDocument::fromJson(bytes);
+
+    if(response.object().contains("error")){
+        QString reason=response.object()["reason"].toString();
+        if(reason=="incorrect email"){
+            ui->error->setText("incorrect email");
+            ui->error->setVisible(true);
+        }
+        else if(reason=="incorrect password"){
+            ui->error->setText("incorrect password");
+            ui->error->setVisible(true);
+        }
     }
-    else if(result=="SignInSuccess"){
-        QString UID;
-        QString newAccesToken;
-        data >> UID;
-        data >> newAccesToken;
+    else if (response.object().contains("refreshToken")) {
+        QString refreshToken = response.object()["refreshToken"].toString();
+
         QFile userData("./userData.json");
         userData.open(QIODevice::ReadOnly);
         QJsonObject obj=QJsonDocument::fromJson(userData.readAll()).object();
         userData.close();
-        obj["accessToken"]=newAccesToken;
-        obj["UID"]=UID;
+
+        obj["refreshToken"]=refreshToken;
         userData.open(QIODevice::WriteOnly);
         userData.write(QJsonDocument(obj).toJson());
         userData.close();
+
         emit signedIn();
+
         if(ui->keepIn->checkState()==Qt::Checked){
             emit keepIn();
         }
+
         this->close();
     }
 }

@@ -39,8 +39,8 @@ void Client::parseUserData(){
     userData.open(QIODevice::ReadOnly);
     QJsonObject obj=QJsonDocument::fromJson(userData.readAll()).object();
     userData.close();
-    selfNickName=obj["nickName"].toString();
-    selfUID=obj["UID"].toString();
+    //selfNickName=obj["nickName"].toString();
+    //selfUID=obj["UID"].toString();
     isAuthorized = obj["authorized"].toBool();
 }
 
@@ -76,7 +76,7 @@ void Client::swithAuthorizedState(){
 
 
 void Client::showSignInForm() {
-   Login *log=new Login(nullptr,socket);
+   Login *log=new Login();
    log->show();
    connect(log,&Login::signedIn,this,&Client::show);
    connect(log,&Login::keepIn,this,&Client::swithAuthorizedState);
